@@ -177,6 +177,27 @@ html, body { font-family: var(--sans); }
   border-inline-start: 3px solid var(--goblin-accent);
 }
 
+/* ---- Big "new here?" call-to-action box on the landing page ---- */
+.content a.cta {
+  display: block;
+  border: 1.5px solid var(--goblin-accent);
+  border-radius: 14px;
+  padding: 1.8rem 2rem;
+  margin: 0.5rem 0 2.4rem;
+  background: rgba(255, 214, 10, 0.06);
+  color: var(--fg);
+  text-decoration: none;
+}
+.content a.cta:hover { background: rgba(255, 214, 10, 0.12); }
+.content a.cta strong {
+  display: block;
+  color: var(--goblin-accent);
+  font-size: 2.2rem;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+}
+.content a.cta span { font-size: 1.6rem; color: var(--fg); }
+
 /* ---- Mobile-first: comfortable measure, tap targets ----
    Body size is set once above (1.7rem = 17px) and is NOT reduced on mobile. */
 .content { max-width: 72rem; }

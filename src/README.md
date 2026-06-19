@@ -1,5 +1,7 @@
 # Goblin
 
+<a class="cta" href="quickstart.html"><strong>New here? Start with the Quick start →</strong><span>Set up your wallet, get paid, and pay someone in about two minutes.</span></a>
+
 **Goblin is a private, mobile-first payments app for [Grin](https://grin.mw). Think Cash App, but the money is Grin, the addresses are usernames, and the whole conversation rides an anonymizing mixnet.**
 
 You send to `@alice`, not to a 90-character address. You tap *Pay*, hold to confirm, and a Grin payment travels end-to-end encrypted over the [Nostr](https://github.com/nostr-protocol/nostr) network and the [Nym](https://nym.com) mixnet, so no relay, no network observer, and no chain analyst can tie the sender to the receiver.
