@@ -1,0 +1,173 @@
+/* goblin.css: Goblin Docs skin for mdBook.
+   Mobile-first. Dark "midnight ledger" palette + Geist, echoing goblin.st.
+   Accent #FFD60A on ink #0E0E0C. Restyles the built-in `navy` theme and
+   provides a light variant if the reader toggles. */
+
+/* ---- Fonts (bundled under src/fonts → copied to /fonts) ---- */
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist-Regular.ttf") format("truetype");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist-SemiBold.ttf") format("truetype");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist-Bold.ttf") format("truetype");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-Regular.ttf") format("truetype");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-SemiBold.ttf") format("truetype");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+
+:root {
+  --goblin-accent: #FFD60A;
+  --goblin-accent-deep: #E8B800;
+  --sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* ---- Type ---- */
+html, body { font-family: var(--sans); }
+.content code, code, pre, kbd { font-family: var(--mono); }
+.menu-title { font-weight: 700; letter-spacing: 0.2px; }
+.content h1, .content h2, .content h3 { font-weight: 700; letter-spacing: -0.01em; }
+.content h2 { margin-top: 2.2rem; }
+
+/* ---- Dark Goblin palette (applied to the default `navy` theme) ---- */
+.navy {
+  --bg: #0E0E0C;
+  --fg: #F4F2E8;
+
+  --sidebar-bg: #14140F;
+  --sidebar-fg: #C9C6B6;
+  --sidebar-non-existant: #6E6B5E;
+  --sidebar-active: #FFD60A;
+  --sidebar-spacer: rgba(244, 242, 232, 0.08);
+
+  --scrollbar: #2a2a22;
+
+  --icons: #8b8878;
+  --icons-hover: #F4F2E8;
+
+  --links: #FFD60A;
+
+  --inline-code-color: #FFE066;
+
+  --theme-popup-bg: #14140F;
+  --theme-popup-border: rgba(244, 242, 232, 0.12);
+  --theme-hover: #21211A;
+
+  --quote-bg: #16160F;
+  --quote-border: #2a2a1d;
+
+  --warning-border: #FFD60A;
+
+  --table-border-color: rgba(244, 242, 232, 0.12);
+  --table-header-bg: #21211A;
+  --table-alternate-bg: #131310;
+
+  --searchbar-border-color: rgba(244, 242, 232, 0.16);
+  --searchbar-bg: #191914;
+  --searchbar-fg: #F4F2E8;
+  --searchbar-shadow-color: rgba(0,0,0,0.5);
+  --searchresults-header-fg: #A9A698;
+  --searchresults-border-color: rgba(244, 242, 232, 0.12);
+  --searchresults-li-bg: #16160F;
+  --search-mark-bg: rgba(255, 214, 10, 0.35);
+}
+
+/* Light variant if the reader toggles to "light"/"rust" */
+.light, .rust {
+  --links: #9a7d00;
+  --sidebar-active: #9a7d00;
+  --search-mark-bg: rgba(255, 214, 10, 0.5);
+}
+
+/* ---- Links & accents ---- */
+.content a, .content a:visited { color: var(--goblin-accent-deep); }
+.navy .content a, .navy .content a:visited { color: var(--goblin-accent); }
+.content a:hover { text-decoration: underline; }
+
+/* Active sidebar item gets a left accent rail */
+.chapter li.chapter-item a.active {
+  color: var(--goblin-accent);
+  font-weight: 600;
+  border-left: 2px solid var(--goblin-accent);
+  padding-left: 8px;
+  margin-left: -10px;
+}
+
+/* ---- Brand mark above the sidebar nav ---- */
+.sidebar .sidebar-scrollbox::before {
+  content: "";
+  display: block;
+  height: 56px;
+  margin: 6px 14px 2px;
+  background: url("assets/goblin-mark-white.svg") left center / contain no-repeat;
+  opacity: 0.95;
+}
+
+/* ---- Screenshots: phone-framed, mobile-first ---- */
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+/* Wrap a screenshot in <p class="shot"> ... </p> to get the phone frame */
+.shot { text-align: center; }
+.shot img {
+  max-width: 300px;
+  width: 100%;
+  border: 1px solid rgba(244, 242, 232, 0.14);
+  border-radius: 22px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  background: #0E0E0C;
+}
+.shot em { display: block; color: #A9A698; font-size: 0.85rem; margin-top: 0.5rem; }
+
+/* Placeholder box for shots not yet captured */
+.shot-todo {
+  border: 1px dashed rgba(255, 214, 10, 0.5);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin: 1rem auto;
+  max-width: 320px;
+  color: #A9A698;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.shot-todo strong { color: var(--goblin-accent); }
+
+/* ---- Definition-style callouts used on component pages ---- */
+.content blockquote {
+  border-inline-start: 3px solid var(--goblin-accent);
+}
+
+/* ---- Mobile-first: comfortable measure, tap targets ---- */
+.content { max-width: 720px; }
+.content p, .content li { font-size: 1rem; line-height: 1.65; }
+@media only screen and (max-width: 620px) {
+  .content { padding: 0 12px; }
+  .content h1 { font-size: 1.6rem; }
+  .shot img { max-width: 88vw; }
+}
+
+/* Section dividers in the summary look like quiet kickers */
+.chapter .spacer + li.part-title,
+.chapter li.part-title {
+  color: #8b8878;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}

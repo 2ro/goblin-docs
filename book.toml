@@ -1,0 +1,25 @@
+[book]
+title = "Goblin Docs"
+description = "How Goblin works: a private, Cash-App-style Grin wallet built on GRIM, Nostr, and the Nym mixnet."
+authors = ["The Goblin Developers"]
+language = "en"
+src = "src"
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+no-section-label = false
+git-repository-url = "https://git.us-ea.st/GRIN/goblin-docs"
+additional-css = ["goblin.css"]
+additional-js = ["goblin.js"]
+mathjax-support = false
+
+[output.html.search]
+enable = true
+limit-results = 25
+use-boolean-and = true
+boost-title = 2
+
+[output.html.fold]
+enable = true
+level = 1
