@@ -16,7 +16,7 @@ Alice pays Bob `5 ツ` by username.
 
 ```
 ALICE                                                   BOB
-  │ 1. resolve @bob → npub (NIP-05, over Nym)
+  │ 1. resolve bob → npub (NIP-05, over Nym)
   │ 2. GRIM builds Standard-1 slatepack
   │ 3. gift-wrap (kind 1059) + publish ───┐
   │    to Bob's kind 10050 relays         │  Nym mixnet
@@ -28,7 +28,7 @@ ALICE                                                   BOB
   ▼ 10. both wallets see it confirm (10 blocks)
 ```
 
-1. **Resolve.** If you typed `@bob`, the wallet resolves it to an `npub` via [NIP-05](name-authority.md), an HTTPS lookup that goes over the mixnet. (Paste an `npub`/`nprofile` and this is skipped; relay hints may come along for free.)
+1. **Resolve.** If you typed `bob`, the wallet resolves it to an `npub` via [NIP-05](name-authority.md), an HTTPS lookup that goes over the mixnet. (Paste an `npub`/`nprofile` and this is skipped; relay hints may come along for free.)
 2. **Build leg 1.** GRIM creates the Standard-1 slatepack for `5 ツ` to Bob and records `tx_meta` (`direction = Sent`, `status = Created`).
 3. **Wrap & send.** The [send pipeline](../pillars/nostr-service.md) builds a `kind 14` rumor (preamble + slatepack + note), seals and gift-wraps it ([NIP-59](../pillars/nostr-protocol.md)), and publishes the `kind 1059` to *your* relays and Bob's DM relays, all over [Nym](../pillars/nym-relay-transport.md). Status → `AwaitingS2`. The UI shows a spinner.
 4. **Bob ingests.** Bob's wallet (even if just reconnected) pulls the gift wrap, unwraps it, parses the slate, and runs [`decide()`](../pillars/nostr-ingest.md). A new payment under the default policy → `AutoReceive`.

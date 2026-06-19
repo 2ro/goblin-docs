@@ -14,7 +14,7 @@ Defaults are conveniences, not gatekeepers. Running your own pieces gives you:
 
 | Service | What it does | Guide |
 | --- | --- | --- |
-| **Name authority** (`goblin-nip05d`) | Issues `@names`, resolves NIP-05, NIP-98 auth | [Run a name authority](name-authority.md) |
+| **Name authority** (`goblin-nip05d`) | Issues **names**, resolves NIP-05, NIP-98 auth | [Run a name authority](name-authority.md) |
 | **Relay** (`strfry` + write policy) | Carries the encrypted payment messages | [Run a relay](relay.md) |
 | **Nym network requester** | The mixnet exit Goblin egresses through | [Run a Nym network requester](nym-requester.md) |
 | **The app itself** | Build for desktop / Android | [Building Goblin](building.md) |

@@ -7,7 +7,7 @@
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Goblin UI   (src/gui/views/goblin/)                     │
-│  Home · Pay · Activity · Receive · Me · Send flow · …     │
+│  Home · Pay/Request · Activity · Receive · Me · Send flow│
 ├─────────────────────────────────────────────────────────┤
 │  Nostr messaging   (src/nostr/)                          │
 │  identity · gift-wrapped slatepacks · ingest policy ·    │
