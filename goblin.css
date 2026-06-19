@@ -37,12 +37,35 @@
   --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-/* ---- Type ---- */
+/* ---- Type scale ----
+   NOTE: mdBook sets `html { font-size: 62.5% }`, so 1rem = 10px here.
+   Every size below is in that scale: 1.7rem = 17px, 3.2rem = 32px, etc.
+   One scale governs the whole reading column so sizing stays consistent. */
 html, body { font-family: var(--sans); }
+
+/* Body copy: 17px, generous line-height, like goblin.st. */
+.content { font-size: 1.7rem; line-height: 1.7; }
+.content p,
+.content li,
+.content td,
+.content th,
+.content blockquote { font-size: 1.7rem; line-height: 1.7; }
+
+/* Headings: a clear, consistent hierarchy. */
+.content h1 { font-size: 3.2rem; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; margin-top: 2.4rem; margin-bottom: 1.4rem; }
+.content h2 { font-size: 2.4rem; line-height: 1.2;  font-weight: 700; letter-spacing: -0.01em; margin-top: 3.4rem; margin-bottom: 1.2rem; }
+.content h3 { font-size: 1.9rem; line-height: 1.25; font-weight: 600; margin-top: 2.6rem; margin-bottom: 1rem; }
+.content h4 { font-size: 1.7rem; font-weight: 600; margin-top: 2rem; }
+
+/* Monospace: inline code scales with its surrounding text; blocks at 15px. */
 .content code, code, pre, kbd { font-family: var(--mono); }
+.content :not(pre) > code { font-size: 0.92em; }
+.content pre code { font-size: 1.5rem; line-height: 1.55; }
+
+/* Tables a touch smaller than body so wide rows fit, but still readable. */
+.content table { font-size: 1.6rem; }
+
 .menu-title { font-weight: 700; letter-spacing: 0.2px; }
-.content h1, .content h2, .content h3 { font-weight: 700; letter-spacing: -0.01em; }
-.content h2 { margin-top: 2.2rem; }
 
 /* ---- Dark Goblin palette (applied to the default `navy` theme) ---- */
 .navy {
@@ -134,7 +157,7 @@ html, body { font-family: var(--sans); }
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   background: #0E0E0C;
 }
-.shot em { display: block; color: #A9A698; font-size: 0.85rem; margin-top: 0.5rem; }
+.shot em { display: block; color: #A9A698; font-size: 1.4rem; margin-top: 0.8rem; }
 
 /* Placeholder box for shots not yet captured */
 .shot-todo {
@@ -145,7 +168,7 @@ html, body { font-family: var(--sans); }
   max-width: 320px;
   color: #A9A698;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 1.5rem;
 }
 .shot-todo strong { color: var(--goblin-accent); }
 
@@ -154,12 +177,13 @@ html, body { font-family: var(--sans); }
   border-inline-start: 3px solid var(--goblin-accent);
 }
 
-/* ---- Mobile-first: comfortable measure, tap targets ---- */
-.content { max-width: 720px; }
-.content p, .content li { font-size: 1rem; line-height: 1.65; }
+/* ---- Mobile-first: comfortable measure, tap targets ----
+   Body size is set once above (1.7rem = 17px) and is NOT reduced on mobile. */
+.content { max-width: 72rem; }
 @media only screen and (max-width: 620px) {
-  .content { padding: 0 12px; }
-  .content h1 { font-size: 1.6rem; }
+  .content { padding: 0 1.2rem; }
+  .content h1 { font-size: 2.8rem; }   /* 28px: still prominent, fits narrow */
+  .content h2 { font-size: 2.2rem; }   /* 22px */
   .shot img { max-width: 88vw; }
 }
 
@@ -169,5 +193,5 @@ html, body { font-family: var(--sans); }
   color: #8b8878;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.72rem;
+  font-size: 1.3rem;
 }
