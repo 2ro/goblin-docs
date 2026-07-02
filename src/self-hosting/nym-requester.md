@@ -1,6 +1,6 @@
-# Run a Nym exit
+# Run a mixnet exit
 
-> **Summary.** Goblin leaves the mixnet through an **exit**, and there are two kinds. The shared [tunnel](../pillars/nym-client.md) uses a **public exit gateway**, auto-selected by default; you can run one and tell wallets to prefer it with a single environment variable. The money-path relay is additionally reachable through a **scoped exit** co-located with the relay, advertised in the relay pool; the operator packaging for scoped exits is not published yet.
+> **Summary.** Goblin leaves the mixnet through an **exit**, and there are two kinds. The shared [tunnel](../pillars/nym-client.md) uses a **public exit gateway**, auto-selected by default; you can run one and tell wallets to prefer it with a single environment variable. The money-path relay is additionally reachable through a **scoped exit** co-located with the relay, advertised in the relay pool; both [Floonet](https://docs.floonet.dev) relay packages bundle one behind a config toggle.
 
 ## Motivation
 
@@ -19,7 +19,7 @@ The preference is anchor + fallback: each selection cycle tries your exit first 
 
 A relay operator can additionally run a tiny **scoped** exit next to their relay: it holds an ordinary, unbonded Nym client identity (no bonding, no NYM tokens) and pipes mixnet streams to that one relay and nowhere else, so it is not an open proxy and needs no exit policy. Wallets learn its address from the `exit` field of the relay's entry in the [candidate pool](../pillars/nostr-relays.md#the-candidate-pool) and prefer it automatically, falling back to the tunnel whenever it's down. The wallet-side behavior is documented in [The scoped relay exit](../pillars/nym-exit.md).
 
-Today the deployed instance is the one serving `relay.goblin.st`. A packaged, flip-a-switch bundle that runs the exit alongside a self-hosted relay is planned but **not yet published**; this page will grow when it ships.
+The packaging is published: both [Floonet relay packages](https://docs.floonet.dev) bundle the exit behind a single toggle (`COMPOSE_PROFILES=exit` for floonet-strfry, `[exit] enabled = true` for floonet-rs). Flip it on, publish the exit's mixnet address from `nym_address.txt`, and wallets that learn it from the relay pool dial your relay straight over the mixnet. The first production deployment is the one serving `relay.floonet.dev`, Goblin's default money-path relay.
 
 ## Reference
 

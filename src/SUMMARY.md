@@ -52,5 +52,5 @@
 - [Self-hosting overview](self-hosting/README.md)
 - [Run a name authority](self-hosting/name-authority.md)
 - [Run a relay](self-hosting/relay.md)
-- [Run a Nym exit](self-hosting/nym-requester.md)
+- [Run a mixnet exit](self-hosting/nym-requester.md)
 - [Building Goblin](self-hosting/building.md)

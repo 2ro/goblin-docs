@@ -14,7 +14,7 @@ Under the hood Goblin stands on three pillars:
 | --- | --- |
 | **[GRIM](pillars/grim-base.md)** | A complete, audited Grin wallet + node engine: seed, sync, and the Mimblewimble slatepack transaction machinery. Goblin forks it and keeps it. |
 | **[Nostr](pillars/nostr.md)** | The messaging layer. Usernames, encrypted payment messages (gift-wrapped slatepacks), and offline delivery, all without running our own bespoke server. |
-| **[Nym](pillars/nym.md)** | The transport. Every byte Goblin sends, relay traffic *and* every HTTP request, goes through a 5-hop mixnet. Nothing touches the clear net. |
+| **[Nym](pillars/nym.md)** | The transport. All relay traffic and every HTTP request goes through a 5-hop mixnet, and the money-path relay is dialed straight through a [scoped exit](pillars/nym-exit.md) beside it. Only the public Grin chain connection is direct, by design. |
 
 ## How to read these docs
 

@@ -43,7 +43,7 @@ Neither party pasted a slatepack, and neither needed the other online at the sam
 
 ## How the bytes travel
 
-Every message above rides the [Nym mixnet](../pillars/nym.md), and the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it). The primary relay is dialed through its operator's [scoped exit](../pillars/nym-exit.md) when the relay pool advertises one, so the payment path needs no public DNS and no shared public exit; every other connection, and any exit failure, rides the shared [tunnel](../pillars/nym-client.md). One honest caveat: the first relay connect after a cold app start can take up to about a minute while the exit's mixnet client acquires bandwidth. It's one-time per session, and the tunnel keeps the wallet connected in the meantime.
+Every message above rides the [mixnet](../pillars/nym.md), and the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it). The primary relay is dialed through its operator's [scoped exit](../pillars/nym-exit.md) when the relay pool advertises one, so the payment path needs no public DNS and no shared public exit, and it's fast: the money-path relay connects in a couple of seconds even from a cold app start, and a funded payment finalizes in about six seconds end to end. Every other connection, and any exit failure, rides the shared [tunnel](../pillars/nym-client.md), whose first cold-start connect can take noticeably longer.
 
 ## Requests (invoice flow)
 

@@ -1,6 +1,6 @@
 # Nym in Goblin
 
-> **Summary.** Goblin routes **all** of its network traffic (every Nostr relay socket and every HTTP request) through the [Nym mixnet](https://nym.com), a 5-hop anonymizing network. The mixnet client is linked **in-process**: one shared [tunnel](nym-client.md) carries traffic to an auto-selected public exit, and the money-path relay is dialed straight through its operator's own [scoped exit](nym-exit.md) when one is advertised. Even DNS happens [inside the mixnet](nym-dns.md). Nothing Goblin sends touches the clear net.
+> **Summary.** Goblin routes every Nostr relay socket and every HTTP request (names, price feed, avatars) through the [Nym mixnet](https://nym.com), a 5-hop anonymizing network. The mixnet client is linked **in-process**: one shared [tunnel](nym-client.md) carries traffic to an auto-selected public exit, and the money-path relay is dialed straight through its operator's own [scoped exit](nym-exit.md), the fast path, when one is advertised. Even DNS happens [inside the mixnet](nym-dns.md). The one deliberate exception is the Grin **node** connection, which stays direct: public chain data, where liveness matters more than anonymity.
 
 ## Motivation
 
@@ -37,7 +37,7 @@ The component pages:
 | Nostr relay sockets (payments + identity events) | **Nym**: the operator's scoped exit for the primary relay when advertised, the tunnel otherwise. |
 | NIP-05 lookups, price feed, avatars, relay pool + NIP-11 probes | **Nym** (the tunnel; HTTPS to a relay with a scoped exit rides that exit). |
 | DNS | **Nym** (DNS-over-TLS through the tunnel, DNS-over-HTTPS fallback; never a clearnet lookup). |
-| Grin **node** connection (sync, broadcast) | **Direct**: public chain data, not tied to your identity; anonymizing it adds latency for no metadata gain. |
+| Grin **node** connection (sync, broadcast) | **Direct, by design**: public chain data, not tied to your identity. The privacy budget is spent on the money path; chain sync favors liveness over anonymity. |
 
 ## References
 

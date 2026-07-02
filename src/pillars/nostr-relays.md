@@ -8,7 +8,7 @@ Nostr has no central server: reachability depends on sender and receiver sharing
 
 ## How it works
 
-- **Defaults.** Out of the box Goblin advertises the relay it operates (`relay.goblin.st`) plus up to two relays drawn from the candidate pool below. The Goblin relay is a stock [strfry](https://github.com/hoytech/strfry) with a write policy restricting stored kinds to the handful Goblin needs (profiles, relay lists, gift wraps), and its pool entry advertises the operator's co-located [scoped Nym exit](nym-exit.md), so the money path needs no public DNS.
+- **Defaults.** Out of the box Goblin advertises the relay the project operates (`relay.floonet.dev`) plus up to two relays drawn from the candidate pool below. It is a [Floonet](https://docs.floonet.dev) relay (the floonet-strfry package: stock [strfry](https://github.com/hoytech/strfry) with a write policy restricting stored kinds to the handful Goblin needs), and its pool entry advertises the operator's co-located [scoped mixnet exit](nym-exit.md), so the money path needs no public DNS. The previous default, `relay.goblin.st`, is retired on **2026-07-04**: wallets that still pin it keep working until then, and new wallets never see it.
 - **Advertising reachability.** Your wallet publishes a `kind 10050` DM-relay list (capped at 3) so a sender's wallet knows which relays to deliver your payment to. The same event carries an `encryption` tag advertising the wallet's [NIP-44 v3 capability](nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback). The list is also fanned out, publish-only, to the pool's *discovery* indexers so a payer who shares no relay with you can still find your inbox list. `nprofile` shares carry relay hints too, so a fresh recipient is reachable without any lookup.
 - **Selection is sticky.** The advertised set is picked once and persisted; there is no timer rotation, because churning a `kind 10050` list breaks payers' cached routing.
 - **Editing.** **Settings → Nostr Relays** shows your list and lets you add `wss://…` relays (URLs are normalized: a bare host gets `wss://`). "Save & reconnect" rewrites your `kind 10050` and restarts the [service](nostr-service.md) on the new set. A user-edited list disables automatic selection entirely.
@@ -25,7 +25,7 @@ Each entry carries:
 
 - **Roles**: `dm` (eligible to carry gift-wrapped payments) and/or `discovery` (an indexer that only ever receives the public identity events, never a wrap).
 - **A vetted date**: vetted entries are weighted 3:1 when the advertised set is drawn.
-- **Optionally, an `exit`**: the Nym address of that operator's co-located [scoped exit](nym-exit.md). The pinned pool carries one for `relay.goblin.st`.
+- **Optionally, an `exit`**: the Nym address of that operator's co-located [scoped exit](nym-exit.md). The pinned pool carries one for `relay.floonet.dev`.
 
 A pool relay is only ever used after passing a **NIP-11 gate**, checked lazily right before use (results cached for 24 hours): it must accept messages of at least 128 KiB (a worst-case payment wrap is ~66 KB on the wire), must not require payment, AUTH, or restricted writes, and must tolerate [NIP-59](https://nips.nostr.com/59)'s up-to-2-day backdated timestamps. The NIP-11 fetch itself runs over the mixnet.
 

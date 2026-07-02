@@ -1,6 +1,6 @@
 # The scoped relay exit
 
-> **Summary.** Goblin's money-path relay (`relay.goblin.st` by default) is reached through a **scoped Nym exit**: a small forwarder the relay's operator runs next to the relay, which pipes mixnet traffic to that one relay and nowhere else. The wallet dials it directly over the mixnet by Nym address, so the payment path needs **no public DNS** and doesn't depend on a shared public exit. It is an anchor with a fallback: if the exit is unavailable for any reason, the wallet transparently uses the [regular tunnel](nym-client.md), so availability is never reduced.
+> **Summary.** Goblin's money-path relay (`relay.floonet.dev` by default) is reached through a **scoped mixnet exit**: a small forwarder the relay's operator runs next to the relay, which pipes mixnet traffic to that one relay and nowhere else. The wallet dials it directly over the mixnet by Nym address, so the payment path needs **no public DNS** and doesn't depend on a shared public exit, and it is fast: the relay connects in a couple of seconds from a cold start, and a funded payment finalizes in about six. It is an anchor with a fallback: if the exit is unavailable for any reason, the wallet transparently uses the [regular tunnel](nym-client.md), so availability is never reduced.
 
 ## Motivation
 
@@ -10,18 +10,18 @@ A relay operator can remove both. By running a tiny mixnet exit co-located with 
 
 ## How it works
 
-- **Discovery.** Each entry in the [relay candidate pool](nostr-relays.md#the-candidate-pool) may carry an `exit` field: the Nym address (`<client>.<enc>@<gateway>`) of that operator's co-located exit. The pinned pool compiled into the app carries the exit for `relay.goblin.st`, so the money path bootstraps offline, before any network fetch, with no chicken-and-egg on learning the address.
+- **Discovery.** Each entry in the [relay candidate pool](nostr-relays.md#the-candidate-pool) may carry an `exit` field: the Nym address (`<client>.<enc>@<gateway>`) of that operator's co-located exit. The pinned pool compiled into the app carries the exit for `relay.floonet.dev`, so the money path bootstraps offline, before any network fetch, with no chicken-and-egg on learning the address.
 - **Dialing.** When the [relay transport](nym-relay-transport.md) (or an [HTTPS request](nym-http.md) to the same host, such as the relay's NIP-11 probe) targets a relay with an advertised exit, the wallet opens a mixnet stream straight to the exit. The exit pipes the raw bytes to its one configured relay.
 - **TLS is end to end.** The stream then carries exactly the same hostname-validated TLS + websocket handshake as the tunnel path (SNI is the relay host, certificates checked against webpki roots). The exit sees only ciphertext; a hostile or compromised exit cannot read or tamper with the connection.
 - **Anchor + fallback, never pin-only.** Every failure (a bad address, a stuck mixnet bootstrap, a failed stream open, a TLS timeout) simply falls through to the tunnel path. The whole dial is capped by the same 20-second bootstrap budget as the tunnel, so a dead exit costs seconds, and the TLS handshake itself doubles as the exit liveness probe.
 
-### The one-time cold-start cost
+### The fast money path
 
-The exit egress rides a second mixnet client, separate from the tunnel and created lazily on first use. On a cold app start both clients have to acquire Nym bandwidth, and the grants serialize, so the **first relay connect after a cold start can take up to about a minute**. This is one-time per session: payments themselves are fast once connected, and the tunnel plus the automatic fallback keep the wallet usable in the meantime (discovery and secondary relays never wait on the exit). Sharing one mixnet client between the tunnel and the exit would remove this cost entirely and is tracked as future work.
+Dialing the exit skips both slow legs of the tunnel path: the in-mixnet DNS lookup and the shared public exit (the public-IPR hop). The result is the fastest connection the wallet makes: against the default relay, a **cold app start connects in about 0–2 seconds**, and a funded payment finalizes in about **6 seconds** end to end. Over the public-IPR route the same first connect used to take anywhere from 15 seconds to 3 minutes. A wallet that has to fall back to the tunnel pays that older cost, never a dead end, and discovery and secondary relays never wait on the exit either way.
 
 ## Running one
 
-The exit holds an ordinary, unbonded Nym client identity: no bonding, no NYM tokens, no exit policy. The instance serving `relay.goblin.st` is the first deployment. Packaging that lets any relay operator flip on a co-located exit next to their own relay is planned but **not yet published**, so today the only scoped exit wallets use is the one advertised for the default relay. See [Run a Nym exit](../self-hosting/nym-requester.md) for the operator-side picture.
+The exit holds an ordinary, unbonded Nym client identity: no bonding, no NYM tokens, no exit policy. It ships **bundled in both [Floonet](https://docs.floonet.dev) relay packages** behind a single config toggle: `COMPOSE_PROFILES=exit` for floonet-strfry, `[exit] enabled = true` for floonet-rs. The instance serving `relay.floonet.dev` (floonet-strfry with the exit enabled) is the first production deployment. See [Run a mixnet exit](../self-hosting/nym-requester.md) for the operator-side picture and the [Floonet docs](https://docs.floonet.dev) for the packages themselves.
 
 ## Reference
 
