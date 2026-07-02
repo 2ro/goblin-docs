@@ -1,37 +1,33 @@
-# Run a Nym network requester
+# Run a Nym exit
 
-> **Summary.** Goblin egresses the mixnet through a **network requester**: the exit that forwards your traffic to relays and HTTPS hosts. Goblin ships with a default, but you can run your own for reliability and point wallets at it with one environment variable.
+> **Summary.** Goblin leaves the mixnet through an **exit**, and there are two kinds. The shared [tunnel](../pillars/nym-client.md) uses a **public exit gateway**, auto-selected by default; you can run one and tell wallets to prefer it with a single environment variable. The money-path relay is additionally reachable through a **scoped exit** co-located with the relay, advertised in the relay pool; the operator packaging for scoped exits is not published yet.
 
 ## Motivation
 
-The network requester is the last mixnet hop before the open internet. Using a requester you operate means you're not depending on a third party's exit for your community's payments, and you can keep it close to the relays and name authority you also run. Goblin uses the standard requester (with a normal exit policy) rather than an open proxy.
+The exit is the last mixnet hop before your traffic reaches a relay or an HTTPS host. Operating your own means your community's payments don't depend on a third party's exit, and you can keep it next to the relay and name authority you also run. Whichever exit carries the traffic, TLS is negotiated end to end against the destination hostname, so an exit only ever sees ciphertext.
 
-## How it works
+## The public exit (the tunnel's anchor)
 
-A `nym-network-requester` is initialized once (it registers with a gateway and gets a mixnet address), then run as a long-lived service. Its **address** is what wallets target. A wallet picks the requester from either:
+By default the tunnel **auto-selects** a public exit gateway and re-selects whenever the current one goes bad, so there is no single exit to depend on. To prefer an exit you operate:
 
-- the baked-in default (`NETWORK_REQUESTER` in `goblin/src/nym/sidecar.rs`), or
-- the `GOBLIN_NYM_PROVIDER` environment variable at runtime (overrides the default).
+1. Run a Nym exit gateway (a `nym-node` in exit-gateway mode, which includes the IP packet router the tunnel targets), per the Nym operator docs.
+2. Point wallets at it with `GOBLIN_NYM_IPR=<recipient address>`, either at runtime or baked in at build time (the only way to configure it on Android). Setting it empty disables a baked-in anchor.
 
-## Deploying
+The preference is anchor + fallback: each selection cycle tries your exit first and falls back to auto-select on any failure, so a dead anchor costs seconds, never a lockout. An invalid address is ignored with a warning (pure auto-select). Pin-only operation is deliberately impossible.
 
-```sh
-# 1. build or obtain a portable nym-network-requester binary
-# 2. initialize (registers with a gateway; standard exit policy, NOT an open proxy)
-nym-network-requester init --id my-requester
-# 3. run it as a service (systemd unit, restart on failure)
-nym-network-requester run --id my-requester
-# 4. note the printed mixnet address; that's the "provider"
-```
+## The scoped relay exit (the money path)
 
-Then either set `GOBLIN_NYM_PROVIDER=<address>` in the wallet's environment, or bake it into `NETWORK_REQUESTER` and rebuild. The project includes a reference deploy script (`deploy-nym-requester.sh`) that builds a portable (glibc-2.17) binary, installs a systemd unit, initializes the requester, and prints its address; adapt the host specifics to your own server.
+A relay operator can additionally run a tiny **scoped** exit next to their relay: it holds an ordinary, unbonded Nym client identity (no bonding, no NYM tokens) and pipes mixnet streams to that one relay and nowhere else, so it is not an open proxy and needs no exit policy. Wallets learn its address from the `exit` field of the relay's entry in the [candidate pool](../pillars/nostr-relays.md#the-candidate-pool) and prefer it automatically, falling back to the tunnel whenever it's down. The wallet-side behavior is documented in [The scoped relay exit](../pillars/nym-exit.md).
+
+Today the deployed instance is the one serving `relay.goblin.st`. A packaged, flip-a-switch bundle that runs the exit alongside a self-hosted relay is planned but **not yet published**; this page will grow when it ships.
 
 ## Reference
 
-- Where the address is consumed: `goblin/src/nym/sidecar.rs` (`NETWORK_REQUESTER`, `provider()`, `GOBLIN_NYM_PROVIDER`).
-- Reference deploy automation: `deploy-nym-requester.sh` (project root).
-- The in-process client that dials it: [The in-process mixnet client](../pillars/nym-client.md).
+- Anchor consumption: `goblin/src/nym/nymproc.rs` (`GOBLIN_NYM_IPR`, `anchor_recipient()`, the `ExitSelector` prefer-with-fallback policy).
+- Scoped-exit dialing: `goblin/src/nym/streamexit.rs`; advertisement: `goblin/src/nostr/pool.rs` (`PoolRelay::exit`).
 
 ## References
 
-- Nym network requester docs: <https://nym.com/docs>.
+- Nym operator docs: <https://nym.com/docs/operators>.
+- The tunnel that uses the public exit: [The in-process mixnet tunnel](../pillars/nym-client.md).
+- The wallet side of the scoped exit: [The scoped relay exit](../pillars/nym-exit.md).

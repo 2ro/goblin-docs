@@ -52,7 +52,7 @@ Tap **Activity** to see everything you've sent and received, and whether each on
 
 - **Your recovery phrase is your money.** Back it up on paper. Goblin can't reset it for you, and support can't either.
 - **Payments are private by default.** They travel encrypted, and the network hides who paid whom. [Here's how](overview/architecture.md).
-- **The very first connection takes a few seconds** while Goblin's private network warms up. That's normal.
+- **The first connection can take a little while** after you open the app: usually seconds, up to a minute on some cold starts, while Goblin's private network warms up. That's normal, it happens once per session, and payments are fast once you're connected.
 - **Paying someone who isn't on Goblin?** Use **Settings → Wallet → Slatepacks** for the by-hand method.
 
 Want the full picture of how it all works? Start with [What is Goblin?](overview/what-is-goblin.md)

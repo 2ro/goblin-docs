@@ -24,7 +24,7 @@ The docs are organized from the outside in:
 2. **Pillars**: the three foundations ([GRIM](pillars/grim-base.md), [Nostr](pillars/nostr.md), [Nym](pillars/nym.md)), each broken into its component parts.
 3. **[Features](features/payment-flow.md)**: the things you actually *do*: pay, request, claim a name, onboard.
 4. **[Subsystems](subsystems/theme.md)**: the smaller machinery: themes, avatars, QR, localization, security.
-5. **[Operating Goblin](self-hosting/README.md)**: run your own name authority, relay, and mixnet exit; build from source.
+5. **[Operating Goblin](self-hosting/index.html)**: run your own name authority, relay, and mixnet exit; build from source.
 
 Every component page follows the same shape:
 

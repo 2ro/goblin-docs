@@ -27,11 +27,11 @@ The Nostr layer (`goblin/src/nostr/`) breaks into six components, each with its 
 | [The NostrService](nostr-service.md) | The per-wallet relay thread + send pipeline | `client.rs` |
 | [Ingest policy](nostr-ingest.md) | What the wallet accepts, and what it never does | `ingest.rs` |
 | [Storage, config & types](nostr-storage.md) | The metadata archive and per-wallet settings | `store.rs`, `config.rs`, `types.rs` |
-| [Relays](nostr-relays.md) | Defaults, DM relay lists, the editor | `relays.rs` |
+| [Relays](nostr-relays.md) | Defaults, the candidate pool, DM relay lists, the editor | `relays.rs`, `pool.rs` |
 
 ## The NIPs Goblin implements
 
-NIP-05 (names), NIP-06 (key derivation), NIP-17 (private DMs), NIP-19 (`npub`/`nprofile` encoding), NIP-44 (encryption), NIP-49 (encrypted key at rest), NIP-59 (gift wrap), NIP-65 (relay lists), NIP-98 (HTTP auth). Each is cited on the page where it's used.
+NIP-05 (names), NIP-06 (key derivation), NIP-11 (relay information, as the pool gate), NIP-17 (private DMs), NIP-19 (`npub`/`nprofile` encoding), NIP-44 (encryption, v3 with v2 fallback), NIP-49 (encrypted key at rest), NIP-59 (gift wrap), NIP-65 (relay lists), NIP-98 (HTTP auth). Each is cited on the page where it's used.
 
 ## References
 

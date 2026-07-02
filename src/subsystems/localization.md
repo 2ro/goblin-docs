@@ -10,7 +10,7 @@ Goblin is aimed at a global audience, so hard-coded English is a non-starter. Th
 
 Strings are referenced with the `t!("goblin.…")` macro and defined in per-locale YAML under `goblin/locales/`. The six files (`en`, `de`, `fr`, `ru`, `tr`, `zh-CN`) share an identical key tree. An integration test loads all of them and asserts every `goblin.*` key present in one locale is present in all, so adding a key means adding it everywhere. Chinese is auto-detected from the system locale.
 
-For example, the recent UI change that renamed the relay row added a `goblin.settings.nostr_relays` key to all six files at once; the parity test is what guarantees that.
+For example, the recent UI change that renamed the relay row added a `goblin.settings.nostr_relays` key to all six files at once; the parity test is what guarantees that. Beyond parity, the non-English locales get periodic full translation passes as screens change, so the wording stays natural rather than merely present.
 
 ## Reference
 

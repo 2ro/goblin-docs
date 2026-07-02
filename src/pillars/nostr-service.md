@@ -15,6 +15,7 @@ When a wallet opens with Nostr enabled, it spawns a `NostrService` on a dedicate
 - **Runs the send pipeline**: build rumor → seal → gift wrap → publish to *your* relays and the recipient's DM relays. Progress is published to the UI through an atomic `send_phase` (`IDLE → WORKING → SENT / FAILED`, plus `REQUEST_BLOCKED`), with a human-readable reason on failure.
 - **Rate-limits incoming senders** to blunt spam: a known **contact** may send ~30 events/hour, an **unknown** key ~10/hour.
 - **Re-verifies names** on a rolling basis (a few contacts per tick, on a periodic heartbeat) so a contact whose `name` was reassigned or released is caught.
+- **Reports relay liveness to the transport layer**: the service tells the [Nym tunnel](nym-client.md) which exit generation its relays are connected on, which both drives the honest "Connected over Nym" indicator and lets the tunnel's watchdog condemn an exit that can't carry relay traffic.
 - **Serializes cancel vs. finalize** with a lock, so a user-initiated cancel can't race a concurrent auto-finalize of the same slate.
 
 It also answers one-shot queries the UI needs: `fetch_profile_blocking()` (pull a `kind 0` profile to verify a pasted key), `nprofile()` (your shareable [NIP-19](https://nips.nostr.com/19) profile with relay hints), and `nsec()` (plaintext key for an explicit user backup only).

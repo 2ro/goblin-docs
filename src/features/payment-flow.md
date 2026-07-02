@@ -41,6 +41,10 @@ ALICE                                                   BOB
 
 Neither party pasted a slatepack, and neither needed the other online at the same instant: relays buffered the messages.
 
+## How the bytes travel
+
+Every message above rides the [Nym mixnet](../pillars/nym.md), and the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it). The primary relay is dialed through its operator's [scoped exit](../pillars/nym-exit.md) when the relay pool advertises one, so the payment path needs no public DNS and no shared public exit; every other connection, and any exit failure, rides the shared [tunnel](../pillars/nym-client.md). One honest caveat: the first relay connect after a cold app start can take up to about a minute while the exit's mixnet client acquires bandwidth. It's one-time per session, and the tunnel keeps the wallet connected in the meantime.
+
 ## Requests (invoice flow)
 
 A *request* runs the same machinery with the roles inverted: you issue an Invoice-1 ("please pay me `5 ツ`"), the payer's wallet **surfaces it for explicit approval** (never auto-paid; see [ingest policy](../pillars/nostr-ingest.md)), and on approval the Invoice-2/finalize legs complete. Declining or cancelling sends a [void control message](cancel-decline.md).

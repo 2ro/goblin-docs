@@ -1,6 +1,6 @@
 # HTTP over the mixnet
 
-> **Summary.** Every HTTP request Goblin makes (NIP-05 name resolution and registration, the price feed, avatar fetches) goes through the local Nym SOCKS5 proxy as a `socks5h://127.0.0.1:1080` proxy. Generous timeouts account for mixnet latency. There is no clearnet HTTP path.
+> **Summary.** Every HTTP request Goblin makes (NIP-05 name resolution and registration, the price feed, avatar fetches, the relay pool and its NIP-11 probes) goes through the mixnet: the hostname is resolved over [encrypted DNS](nym-dns.md), TCP runs through the [tunnel](nym-client.md), TLS is validated against the hostname, and HTTP/1.1 runs on top. HTTPS to a host whose relay advertises a [scoped exit](nym-exit.md) rides that exit instead. There is no clearnet HTTP path.
 
 ## Motivation
 
@@ -8,23 +8,25 @@ It would be easy to leave "just a name lookup" or "just the price" on the clear 
 
 ## How it works
 
-`http_request_bytes()` builds a `reqwest` client configured with the Nym proxy and a fixed `goblin-wallet` user agent, sends the request, and returns `(status, body)`. Because the proxy URL uses the `socks5h` scheme, DNS resolution happens inside the proxy (mixnet), not locally. The timeout is generous (60 s) because the mixnet adds deliberate per-hop delay: a name lookup that would be instant on the clear net might take a couple of seconds here, which is fine for the interactions involved. A string-bodied convenience wrapper, `http_request()`, sits on top.
+`http_request_bytes()` waits for the shared tunnel (up to 30 seconds, starting it lazily if needed), then for each redirect hop:
 
-Callers include:
+1. **Egress pick.** HTTPS to a host whose relay entry advertises a co-located exit (in practice, the money-path relay's NIP-11 probe) dials through that exit; any failure, and every other request, resolves the host over [DoT](nym-dns.md) and opens TCP through the tunnel. Neither the lookup nor the body ever touches the clear.
+2. **TLS.** For `https` the stream is wrapped in rustls with webpki roots and validated against the **hostname**, even though the dial went to a resolved IP, so a lying resolver or a hostile exit cannot man-in-the-middle the request.
+3. **HTTP/1.1** via hyper: a fixed `goblin-wallet` user agent, the caller's method, headers, and body, and a generous 60-second per-hop budget, because the mixnet adds deliberate per-hop delay.
+4. **Redirects** are followed like a browser, up to 5 hops: 301/302/303 turn into a bodiless GET, 307/308 replay the method and body.
 
-- **NIP-05** resolution (`/.well-known/nostr.json?name=…`), registration/release (NIP-98-authenticated `POST`/`DELETE`), and reverse `name-by-pubkey` lookup.
-- **Avatars**: fetching a contact's image from the authority.
-- **Price**: the fiat/BTC rate for the amount preview.
+Logs never contain full URLs, only hosts. A string-bodied convenience wrapper, `http_request()`, sits on top.
 
 ## Reference
 
 In `goblin/src/nym/mod.rs`:
 
-- `SOCKS5_HOST` / `SOCKS5_PORT = 1080`; `proxy_url()` → `socks5h://127.0.0.1:1080`; `socks5_addr()` → `127.0.0.1:1080` (raw TCP for the [relay transport](nym-relay-transport.md)).
-- `http_request_bytes(method, url, body, headers) -> Option<(u16, Vec<u8>)>`: reqwest client with `Proxy::all(proxy_url())`, `user_agent("goblin-wallet")`, 60 s timeout.
-- `http_request(...)`: `String`-bodied wrapper.
+- `http_request_bytes(method, url, body, headers) -> Option<(u16, Vec<u8>)>` and the `String`-bodied `http_request(...)`.
+- `request_once()`: the exit fork (`pool::exit_for_host(host)`), `dns::resolve()`, `tunnel.tcp_connect()`, `tls_connect()` (rustls + webpki roots, hostname-validated), one hyper HTTP/1.1 exchange.
+- `exit_connect()`: a mixnet stream to the operator's exit + the same `tls_connect()`, bounded by the shared bootstrap cap.
+- Budgets: `HTTP_TIMEOUT` (60 s per hop), `TUNNEL_WAIT` (30 s), `MAX_REDIRECTS` (5).
 
 ## References
 
-- Where these calls originate: [NIP-05 name authority](../features/name-authority.md) (`goblin/src/nostr/nip05.rs`), and the price/avatar fetchers.
-- The proxy itself: [The in-process mixnet client](nym-client.md).
+- Where these calls originate: [NIP-05 name authority](../features/name-authority.md) (`goblin/src/nostr/nip05.rs`), the [relay pool](nostr-relays.md#the-candidate-pool) (`goblin/src/nostr/pool.rs`), and the price/avatar fetchers.
+- The tunnel underneath: [The in-process mixnet tunnel](nym-client.md).

@@ -1,6 +1,6 @@
 # Relay traffic over the mixnet
 
-> **Summary.** Goblin gives the Nostr relay pool a custom websocket transport that dials every relay through the local Nym SOCKS5 proxy. The proxy resolves the relay host *inside* the mixnet (`socks5h`-style, no clearnet DNS), then the TLS + websocket handshake runs over that tunnel.
+> **Summary.** Goblin gives the Nostr relay pool a custom websocket transport with **two mixnet egresses**, picked per relay: a relay whose pool entry advertises its operator's [scoped exit](nym-exit.md) is dialed straight through that exit; every other relay, and every fallback, rides the shared [tunnel](nym-client.md). Either way, the same hostname-validated TLS + websocket handshake runs over the mixnet-carried stream, so nothing above the byte transport can tell the difference.
 
 ## Motivation
 
@@ -10,25 +10,23 @@ The `nostr-sdk` relay pool normally opens websockets directly. To put relay traf
 
 For each relay URL the pool wants to connect to, `NymWebSocketTransport::connect`:
 
-1. Parses the host and port (defaulting 80 for `ws://`, 443 for `wss://`).
-2. Opens a SOCKS5 connection to `127.0.0.1:1080` and asks the proxy to reach `(host, port)`. Because the proxy does the DNS resolution inside the mixnet, the destination host is never resolved on the clear.
-3. Runs the TLS (for `wss`) and websocket handshake **over** that mixnet stream.
-4. Splits the socket into a sink (writes) and a stream (reads), adapting tungstenite messages to the pool's message type.
+1. **Tries the scoped exit first.** If the [relay pool](nostr-relays.md#the-candidate-pool) advertises this relay operator's co-located exit, the wallet opens a mixnet stream straight to it (no DNS, no public exit) and runs the TLS + websocket handshake over that. Any failure (bootstrap, open, handshake, timeout) logs and falls through to step 2, so an exit outage never locks the wallet out.
+2. **Falls back to the tunnel.** The relay host is resolved [over encrypted DNS through the tunnel](nym-dns.md), a TCP stream to the resolved address is opened through the same tunnel, and the TLS (for `wss`) + websocket handshake runs over it.
+3. **Splits the socket** into a sink (writes) and a stream (reads) for the pool, identical whichever egress carried the connection.
 
-All of this is wrapped in the pool's connect timeout. The result is an ordinary websocket from the SDK's point of view: it just happens to traverse five mixnet hops.
+Every stage is bounded by the pool's connect timeout, and each is timed in the logs so connect cost can be attributed per relay. The result is an ordinary websocket from the SDK's point of view: it just happens to traverse five mixnet hops.
 
 ## Reference
 
 In `goblin/src/nym/transport.rs`:
 
 - `NymWebSocketTransport` implements `nostr_relay_pool::transport::websocket::WebSocketTransport`; `support_ping()` is `true`.
-- `connect()`: host/port parse, `tokio_socks::tcp::Socks5Stream::connect(socks5_addr, (host, port))`, then `tokio_tungstenite::client_async_tls(url, stream)`, split into `WebSocketSink` / `WebSocketStream`.
-- `tg_to_message()`: maps tungstenite `Text/Binary/Ping/Pong/Close` to the pool's `Message`.
-- `NymSink`: sink adapter converting pool messages back to tungstenite messages.
-- The SOCKS5 address comes from `crate::nym::socks5_addr()` (`127.0.0.1:1080`).
+- `connect()`: the exit-first fork (`pool::exit_for(url)`), then the tunnel path: `dns::resolve()`, `tunnel.tcp_connect(addr)`, `tokio_tungstenite::client_async_tls(url, stream)`.
+- `exit_connect()`: `streamexit::open_stream()` + the same `client_async_tls`; the TLS handshake doubles as the exit liveness probe.
+- `split_ws()`, `tg_to_message()`, `NymSink`: adapting tungstenite frames to the pool's message type, shared by both egresses.
 
 ## References
 
-- The proxy that serves `:1080`: [The in-process mixnet client](nym-client.md).
+- The tunnel that serves the fallback: [The in-process mixnet tunnel](nym-client.md).
+- The direct egress: [The scoped relay exit](nym-exit.md).
 - The pool that uses this transport: [The NostrService](nostr-service.md).
-- `socks5h` (DNS-in-proxy) rationale: [HTTP over the mixnet](nym-http.md).

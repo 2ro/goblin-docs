@@ -14,8 +14,8 @@
 │  relays · NIP-05 names · per-wallet service thread       │
 ├─────────────────────────────────────────────────────────┤
 │  Nym mixnet transport   (src/nym/)                       │
-│  in-process SOCKS5 client → 5-hop mixnet → exit          │
-│  ALL relay sockets + ALL HTTP go through here            │
+│  mixnet tunnel + scoped relay exits → 5-hop mixnet       │
+│  ALL relay sockets + HTTP + DNS go through here          │
 ├─────────────────────────────────────────────────────────┤
 │  GRIM wallet + node engine   (wallet/, node/)            │
 │  seed · keys · sync · Mimblewimble slatepack tx machine  │
@@ -40,8 +40,9 @@ A deliberate split (see [the project decisions](../pillars/nym.md#what-goes-over
 
 | Traffic | Path | Why |
 | --- | --- | --- |
-| Nostr relay sockets (payments, identity events) | **Nym mixnet** | Reveals who you talk to; must be hidden. |
+| Nostr relay sockets (payments, identity events) | **Nym mixnet** (the primary relay through its operator's [scoped exit](../pillars/nym-exit.md) when available) | Reveals who you talk to; must be hidden. |
 | NIP-05 name lookups, price feed, avatars (HTTP) | **Nym mixnet** | Reveal who you are / who you're paying. |
+| DNS | **Nym mixnet** ([DoT/DoH through the tunnel](../pillars/nym-dns.md)) | A clearnet lookup would announce which relays and hosts you contact. |
 | Grin node connection (block sync, broadcast) | **Direct** | Public chain data, identical for everyone, not tied to your identity. Anonymizing it buys little and costs reliability. |
 
 ## Code map
@@ -50,7 +51,7 @@ A deliberate split (see [the project decisions](../pillars/nym.md#what-goes-over
 | --- | --- | --- |
 | UI | `goblin/src/gui/views/goblin/` | `mod.rs` (`GoblinWalletView`) |
 | Nostr | `goblin/src/nostr/` | `mod.rs`, `client.rs` |
-| Nym | `goblin/src/nym/` | `sidecar.rs`, `transport.rs` |
+| Nym | `goblin/src/nym/` | `nymproc.rs`, `streamexit.rs`, `transport.rs` |
 | Wallet↔Nostr glue | `goblin/src/wallet/wallet.rs` | `WalletTask::Nostr*` |
 | GRIM core | `goblin/wallet/`, `goblin/node/` | inherited from GRIM |
 | Identity server | `goblin-nip05d/` (sibling crate) | the NIP-05 authority |

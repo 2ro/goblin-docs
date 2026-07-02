@@ -1,38 +1,41 @@
-# The in-process mixnet client
+# The in-process mixnet tunnel
 
-> **Summary.** Goblin links the Nym SDK directly and runs its SOCKS5 mixnet client on a private tokio runtime, exposing the mixnet at `127.0.0.1:1080`. It's warmed up at app launch so the network is ready by the time you open a wallet. There is no subprocess and no bundled binary.
+> **Summary.** Goblin links the mixnet client directly and runs one process-lifetime **tunnel** (the `smolmix` crate) on a private tokio runtime: raw TCP over the mixnet to a public exit gateway. It's warmed up at app launch, gated on a real end-to-end liveness probe, health-checked for its whole life, and rebuilt on a fresh exit the moment the current one goes bad. Losing any one exit never takes the wallet down.
 
 ## Motivation
 
-An earlier design ran Nym as a separate `nym-socks5-client` **sidecar** binary, bundled per platform and launched as a subprocess. That worked but meant shipping and managing native binaries (especially awkward on Android). Once a dependency conflict that had blocked linking the SDK was resolved, Goblin moved the client **in-process**: simpler to ship (one binary), simpler to reason about, and a cleaner lifecycle. The SOCKS5 model was kept (rather than a bespoke peer-to-peer bridge) so Goblin interoperates with *any* relay and *any* NIP-05 host through a standard mixnet exit.
+An earlier design ran Nym as a separate sidecar binary, then as an in-process SOCKS5 client. Both worked, but the SOCKS5 seam hid the thing that matters most on a money path: **whether the exit is actually carrying your traffic**. Some public exits accept the handshake and then silently deliver nothing; a wallet that shows "Connected" while blackholed is worse than one that shows "Connecting". The current tunnel design makes exit health observable and enforceable: bounded bootstraps, a liveness gate before a tunnel is ever used, and a watchdog that condemns and replaces a dead exit automatically.
 
 ## How it works
 
-At startup `warm_up()` spawns a background thread:
+At startup `warm_up()` spawns a background thread that builds the tunnel on a dedicated tokio runtime and keeps both alive for the life of the process:
 
-1. If something is already listening on `127.0.0.1:1080` (e.g. an externally-run client), it's **reused** as-is.
-2. Otherwise the in-process client is built on a dedicated multi-threaded tokio runtime and started. It connects to the mixnet via SOCKS5, pointed at a **network requester** (the mixnet exit). Typical readiness is ~2 seconds.
+1. **Exit selection.** By default the tunnel auto-selects a public exit gateway from the network. A **preferred exit** (the anchor) can be configured with the `GOBLIN_NYM_IPR` environment variable, at runtime or baked in at build time (the only option on Android). Each selection cycle tries the anchor exactly once, then falls back to auto-select for every further attempt, and the next cycle tries the anchor again. Pin-only operation is deliberately impossible: a dead anchor costs seconds, never a lockout.
+2. **Bounded bootstrap.** A single build attempt is capped at 20 seconds. A healthy bootstrap completes in a few seconds; a dead gateway pick would otherwise block for over a minute inside the SDK before the wallet could re-select.
+3. **Liveness gate.** A freshly built tunnel must pass an end-to-end probe (a TCP connect through the tunnel to a stable public address) before it is published to the rest of the app. An exit that handshakes but never delivers data is re-selected immediately instead of blackholing every consumer.
+4. **Health watchdog.** A published tunnel is watched with two signals: **relay reachability** (authoritative while a wallet's relay service is running: an exit whose relays stay unreachable past a grace period is condemned) and a cheap periodic **keepalive probe** (the backstop, and it keeps the exit session from idling out). Condemned exits are torn down and replaced with a fresh one, rate-limited by a minimum exit lifetime so a transient hiccup can never thrash into a reselect loop.
 
-A cheap, cached `is_ready()` flag (an atomic, safe to poll every UI frame) tells the rest of the app when the proxy is up, distinct from a relay actually being connected. The client (and its runtime) is held open for the whole process lifetime.
+**Generations and readiness.** Every published tunnel gets a monotonically increasing generation number, and the Nostr client tags its relay-liveness reports with the generation it dialed on. `is_ready()` (cheap, safe to poll every UI frame) says the tunnel is up; `transport_ready()` is the authoritative "Connected over Nym" signal, true only when a relay is connected **and** subscribed on the *current* generation. A stale exit can never latch the UI green.
 
-**Persistence.** The client's identity and chosen gateway are stored under `~/.goblin/nym`, so the gateway is picked once and reused across launches, which cuts cold-start time. If there's no home directory, it falls back to ephemeral in-memory keys.
+**Identity.** The tunnel uses ephemeral in-memory keys: a fresh mixnet identity per run, nothing persisted.
 
-**The network requester** is a baked-in default address, overridable at runtime with the `GOBLIN_NYM_PROVIDER` environment variable. Self-hosters can run their own requester (see [Run a Nym network requester](../self-hosting/nym-requester.md)) for reliability.
+The tunnel is the **fallback and everything-else path**: discovery relays, secondary relays, HTTP, and DNS all ride it, and the money-path relay falls back to it whenever its [scoped exit](nym-exit.md) is unavailable.
 
-> **Implementation footnote (TLS provider).** Linking Nym pulls in `aws-lc-rs` alongside Goblin's `ring`. With rustls 0.23 unable to auto-pick a default crypto provider, the first TLS handshake would panic. Goblin installs the ring provider explicitly at startup (`rustls::crypto::ring::default_provider().install_default()`), with `rustls` built with the `ring` feature. Worth knowing if you hack on the transport.
+> **Implementation footnote (TLS provider).** Linking Nym pulls in `aws-lc-rs` alongside Goblin's `ring`. With rustls 0.23 unable to auto-pick a default crypto provider, the first TLS handshake would panic. Goblin installs the ring provider explicitly at startup (`rustls::crypto::ring::default_provider().install_default()`). Worth knowing if you hack on the transport.
 
 ## Reference
 
-In `goblin/src/nym/sidecar.rs`:
+In `goblin/src/nym/nymproc.rs`:
 
-- `warm_up()`: background start / reuse; `is_ready()` + `MIXNET_READY` atomic; `port_open()` TCP probe of `:1080`.
-- `run_client()`: builds the tokio runtime, starts the SOCKS5 client, holds it open with `std::future::pending()`.
-- `build_client()`: persistent storage (`StoragePaths` under `~/.goblin/nym`) vs. ephemeral; `Socks5MixnetClient` via `MixnetClientBuilder`.
-- `NETWORK_REQUESTER` constant + `GOBLIN_NYM_PROVIDER` override (`provider()`).
-- Warm-up is kicked off from app start (desktop `main.rs` and Android entry) so the mixnet is ready before wallet open.
+- `warm_up()`: idempotent background start; `run_tunnel()`: build/probe/publish/watch loop on a dedicated runtime.
+- `is_ready()`, `transport_ready()`, `tunnel_generation()`, `report_relay_live()` / `report_relay_down()`, `set_relay_consumer()`: the readiness and liveness surface the Nostr client and the UI use.
+- `ExitSelector` + `anchor_recipient()`: the prefer-with-fallback anchor policy (`GOBLIN_NYM_IPR`, runtime or baked via `option_env!`).
+- Budgets: `BOOTSTRAP_TIMEOUT` (20 s, shared with the scoped-exit dial), `RELAY_GRACE` (25 s), `RELAY_HARD_GRACE` (90 s), `MIN_EXIT_LIFETIME` (20 s), keepalive every 60 s with 3 strikes.
+- `wait_for_tunnel()`: lazy init for consumers; `tunnel()`: the shared handle (cheap clone).
 
 ## References
 
-- The constants (`SOCKS5_HOST`, `SOCKS5_PORT = 1080`) and proxy helpers: `goblin/src/nym/mod.rs`.
+- The liveness probe and in-tunnel DNS: [DNS over the mixnet](nym-dns.md).
 - Consumers: [Relay transport](nym-relay-transport.md), [HTTP](nym-http.md).
+- The money-path egress that bypasses this tunnel: [The scoped relay exit](nym-exit.md).
 - Nym SDK (Rust): <https://nym.com/docs/developers/rust>.

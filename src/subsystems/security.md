@@ -17,7 +17,10 @@ A wallet that accepts messages from strangers and moves money is an attractive t
 | **Processed-id archive + 30-day TTL** | Replaying an old payment message | [Storage](../pillars/nostr-storage.md) (`processed` db) |
 | **NIP-98 single-use auth** | Replaying a name registration request | [Name authority](../features/name-authority.md) |
 | **Per-sender rate limits** | Spam flooding from one key | [NostrService](../pillars/nostr-service.md) (contact 30/h, unknown 10/h) |
-| **Everything over Nym** | IP exposure + timing correlation | [Nym](../pillars/nym.md) |
+| **Everything over Nym, DNS included** | IP exposure + timing correlation; clearnet lookups leaking who you contact | [Nym](../pillars/nym.md), [DNS](../pillars/nym-dns.md) |
+| **Hostname-validated TLS through every egress** | A hostile exit or lying resolver reading or MITMing a connection | [Nym](../pillars/nym.md), [Scoped exit](../pillars/nym-exit.md) |
+| **NIP-44 v3 context binding (when negotiated)** | Ciphertext from one wrap layer replayed as the other | [Protocol](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) |
+| **Relays gated by a local NIP-11 probe** | A broken or hostile relay pool entry silently dropping payments | [Relays](../pillars/nostr-relays.md#the-candidate-pool) |
 | **Reserved names, homograph folding, cooldown** | Impersonation / squatting on names | [Name authority](../features/name-authority.md) |
 | **Tag-independent classification** | A sender lying about message type via tags | [Protocol](../pillars/nostr-protocol.md) (classify by parsed slate only) |
 

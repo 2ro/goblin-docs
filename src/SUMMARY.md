@@ -25,7 +25,9 @@
 # Pillar 3: The Nym mixnet transport
 
 - [Nym in Goblin](pillars/nym.md)
-  - [The in-process mixnet client](pillars/nym-client.md)
+  - [The in-process mixnet tunnel](pillars/nym-client.md)
+  - [The scoped relay exit](pillars/nym-exit.md)
+  - [DNS over the mixnet](pillars/nym-dns.md)
   - [Relay traffic over the mixnet](pillars/nym-relay-transport.md)
   - [HTTP over the mixnet](pillars/nym-http.md)
 
@@ -50,5 +52,5 @@
 - [Self-hosting overview](self-hosting/README.md)
 - [Run a name authority](self-hosting/name-authority.md)
 - [Run a relay](self-hosting/relay.md)
-- [Run a Nym network requester](self-hosting/nym-requester.md)
+- [Run a Nym exit](self-hosting/nym-requester.md)
 - [Building Goblin](self-hosting/building.md)
