@@ -17,6 +17,7 @@ When a wallet opens with Nostr enabled, it spawns a `NostrService` on a dedicate
 - **Re-verifies names** on a rolling basis (a few contacts per tick, on a periodic heartbeat) so a contact whose `name` was reassigned or released is caught.
 - **Reports relay liveness to the transport layer**: the service tells the [Nym tunnel](nym-client.md) which exit generation its relays are connected on, which both drives the honest "Connected over Nym" indicator and lets the tunnel's watchdog condemn an exit that can't carry relay traffic.
 - **Serializes cancel vs. finalize** with a lock, so a user-initiated cancel can't race a concurrent auto-finalize of the same slate.
+- **Raises a system notification on Android** for the two events worth interrupting you for: a payment landing (`AutoReceive`) and someone requesting one (`SurfaceRequest`), each a one-shot, fail-open alert that fires once per event and never delays ingest itself. The persistent "Listening for payments" notification is separate: it just says the service is alive, and stays up the whole time a wallet is open.
 
 It also answers one-shot queries the UI needs: `fetch_profile_blocking()` (pull a `kind 0` profile to verify a pasted key), `nprofile()` (your shareable [NIP-19](https://nips.nostr.com/19) profile with relay hints), and `nsec()` (plaintext key for an explicit user backup only).
 

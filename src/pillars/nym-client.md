@@ -19,6 +19,10 @@ At startup `warm_up()` spawns a background thread that builds the tunnel on a de
 
 **Identity.** The tunnel uses ephemeral in-memory keys: a fresh mixnet identity per run, nothing persisted.
 
+**Warm connect from cached choices.** The last entry gateway and preferred exit that worked are persisted across launches (only which ones were picked, never any key), and are tried first on the next cold start instead of re-running the auto-select lottery against a possibly-dead pick. Measured effect: cold connect to a ready tunnel drops from about 5.6 s to about 4.4 s. A cached choice that fails just clears itself and falls back to normal auto-select, so a stale hint can never cost more than one attempt.
+
+**Throughput.** The tunnel's TCP buffers were raised from 8 KB to 256 KB and the mixnet packet burst from 1 to 64, lifting the bulk-transfer ceiling roughly 32x, so relay backfill and profile/JSON reads no longer crawl at a few KB/s. HTTP requests over the tunnel also reuse connections (keep-alive) instead of a fresh handshake per request, which is what made repeated price and username lookups slow before.
+
 The tunnel is the **fallback and everything-else path**: discovery relays, secondary relays, HTTP, and DNS all ride it, and the money-path relay falls back to it whenever its [scoped exit](nym-exit.md) is unavailable.
 
 > **Implementation footnote (TLS provider).** Linking Nym pulls in `aws-lc-rs` alongside Goblin's `ring`. With rustls 0.23 unable to auto-pick a default crypto provider, the first TLS handshake would panic. Goblin installs the ring provider explicitly at startup (`rustls::crypto::ring::default_provider().install_default()`). Worth knowing if you hack on the transport.
@@ -32,6 +36,7 @@ In `goblin/src/nym/nymproc.rs`:
 - `ExitSelector` + `anchor_recipient()`: the prefer-with-fallback anchor policy (`GOBLIN_NYM_IPR`, runtime or baked via `option_env!`).
 - Budgets: `BOOTSTRAP_TIMEOUT` (20 s, shared with the scoped-exit dial), `RELAY_GRACE` (25 s), `RELAY_HARD_GRACE` (90 s), `MIN_EXIT_LIFETIME` (20 s), keepalive every 60 s with 3 strikes.
 - `wait_for_tunnel()`: lazy init for consumers; `tunnel()`: the shared handle (cheap clone).
+- Cached gateway/exit hints: persisted in [config](../pillars/nostr-storage.md)-adjacent settings (`goblin/src/settings/config.rs`), self-clearing on failure.
 
 ## References
 

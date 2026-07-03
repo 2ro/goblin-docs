@@ -17,6 +17,8 @@ It would be easy to leave "just a name lookup" or "just the price" on the clear 
 
 Logs never contain full URLs, only hosts. A string-bodied convenience wrapper, `http_request()`, sits on top.
 
+**Connections are reused.** Earlier builds opened a fresh handshake for every request, which made repeated lookups (price, usernames) noticeably slow; HTTP over the tunnel now keeps connections alive and reuses them. The **price feed** in particular paints instantly: the last fetched rate (if under 48 hours old) shows on the very first frame, and a live fetch fires the moment the tunnel is ready rather than waiting for the balance screen. That eager fetch doubles as an end-to-end probe: if it fails while the tunnel claims to be ready, the exit is condemned and replaced in seconds instead of minutes.
+
 ## Reference
 
 In `goblin/src/nym/mod.rs`:

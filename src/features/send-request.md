@@ -17,7 +17,7 @@ The flow (`SendFlow`) moves through stages: **Recipient → Amount → Review �
 - **Amount.** A centered numpad (mobile) or typed field (desktop). Over-balance entry flashes red and shakes rather than silently failing.
 - **Note.** An optional memo, editable in a modal, travels in the message's `subject` tag.
 - **Review → hold to send.** The review hero shows recipient, amount, fee and note; a **hold-to-send** gesture (a deliberate ~1.5 s press) confirms, and is hard to do by accident. This dispatches the [payment](payment-flow.md).
-- **QR / scan-to-pay.** The recipient row and the home header offer a camera scanner; "My Code" shows your own `nprofile` QR so someone can scan to pay you. See [QR & camera](../subsystems/qr-camera.md).
+- **QR / scan-to-pay.** The recipient row and the home header offer a camera scanner; "My Code" shows your own `nprofile` QR so someone can scan to pay you. Scanning a checkout code that carries an amount (for example from GoblinPay) fills the amount and note too, not just the recipient. See [QR & camera](../subsystems/qr-camera.md).
 
 **Requests** reuse the **Pay/Request** screen: choose *Request* instead of *Pay* to issue an Invoice-1 to a contact (or broadcast a "requesting X ツ" code). Incoming requests appear as approve/decline cards; see [Cancel & decline](cancel-decline.md).
 

@@ -25,6 +25,8 @@ There are three ways an identity comes to exist (`IdentitySource`):
 
 **Backup & restore.** "Back up to a file" exports the whole identity (encrypted key + name + history) as one sealed JSON file. Importing it on a new device decrypts with the export-time password and re-encrypts under the new wallet's password, so moving devices preserves your username and history. (Moving a wallet needs *both* backups: the seed phrase for funds, and the identity file for your name + key.)
 
+**Logging in to other nostr apps.** **Settings → Advanced → Nostr key** reveals your `nsec` behind your wallet password: enter the password, then copy the key or show it as a QR. Scanning that QR (or pasting the copied `nsec`) into another nostr app's private-key login, for example [magick.market](https://magick.market), signs you in with the same identity your wallet uses. The key is derived on demand behind the password and never persisted in the clear; a wrong password reveals nothing.
+
 ## Reference
 
 - `IdentitySource` enum and the `NostrIdentity` struct: `goblin/src/nostr/identity.rs`. Fields: `ncryptsec`, `npub`, `nip05`, `anonymous`, `prev_npubs`.
