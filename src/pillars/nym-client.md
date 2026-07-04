@@ -16,8 +16,8 @@ Rather than write our own Tor engine, Goblin **copies GRIM's**. GRIM's `src/tor/
 At startup `warm_up()` spawns a background task that bootstraps the Tor client on a dedicated runtime and keeps it alive for the life of the process:
 
 1. **One bootstrap.** Tor is a *single* bootstrap — dramatically simpler than the mixnet path it replaces, which needed two mixnet clients racing each other for bandwidth grants plus a sequencer just to get connected. The bootstrap overlaps with app launch, so it's mostly invisible; warming the circuit at launch hides even the first-send edge.
-2. **Onion dialing.** Once bootstrapped, the client opens circuits to the pinned `.onion` addresses for the [relay](nym-exit.md) and the [name authority](../features/name-authority.md), and Tor-to-clearnet circuits for the [small background lookups](nym-http.md). Goblin only connects *out*; it never publishes a service of its own.
-3. **Readiness gate.** The UI refuses to show "Connected" until the transport is genuinely live: arti has bootstrapped, the onion circuit is up, **and** a required relay is actually subscribed on it. A pipe that opened but can't yet deliver never latches the UI green.
+2. **Exit dialing.** Once bootstrapped, the client opens Tor-exit circuits to the [relay](nym-exit.md) pool's clearnet hosts, the [name authority](../features/name-authority.md), and the [small background lookups](nym-http.md). Goblin only connects *out*; it never publishes a service of its own. (An earlier build also dialed a pinned relay `.onion` directly; that path was dropped in build134, see [The relay's Tor exit path](nym-exit.md).)
+3. **Readiness gate.** The UI refuses to show "Connected" until the transport is genuinely live: arti has bootstrapped, the Tor circuit is up, **and** a required relay is actually subscribed on it. A pipe that opened but can't yet deliver never latches the UI green.
 4. **Health and rebuild.** A live circuit is watched, and a circuit that dies is torn down and rebuilt automatically. The wallet's existing "the connection died, bring it back" logic and its background/foreground handling map cleanly onto Tor circuits.
 
 **Readiness, in detail (preserved from the old transport).** The honest "carrying traffic on the *current* connection" signal is load-bearing and survives the swap intact. `warm_up()` starts the client idempotently; a cheap `is_ready()` (safe to poll every UI frame) says the client is up; and the authoritative `transport_ready()` is true only when a relay is connected **and** subscribed on the current circuit generation. A stale or half-open circuit can never falsely report "Connected over Tor." Only the mechanism's *target* changed — from a mixnet tunnel to a Tor circuit — not its semantics.
@@ -43,7 +43,7 @@ In `goblin/src/tor/` (copied from GRIM's `grim/src/tor/`, four files: `config.rs
 
 ## References
 
-- Onion name resolution and the (absence of a) DNS layer: [Name resolution under Tor](nym-dns.md).
+- Exit-side name resolution and the (absence of a) DNS layer: [Name resolution under Tor](nym-dns.md).
 - Consumers: [Relay transport](nym-relay-transport.md), [HTTP](nym-http.md).
-- The money-path destination this client dials: [The relay's onion service](nym-exit.md).
+- The money-path destination this client dials: [The relay's Tor exit path](nym-exit.md).
 - arti (Tor in Rust): <https://tpo.pages.torproject.net/core/arti/>.

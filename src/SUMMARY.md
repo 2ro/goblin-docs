@@ -26,7 +26,7 @@
 
 - [Tor in Goblin](pillars/nym.md)
   - [The embedded Tor client](pillars/nym-client.md)
-  - [The relay's onion service](pillars/nym-exit.md)
+  - [The relay's Tor exit path](pillars/nym-exit.md)
   - [Name resolution under Tor](pillars/nym-dns.md)
   - [Relay traffic over Tor](pillars/nym-relay-transport.md)
   - [HTTP over Tor](pillars/nym-http.md)
@@ -52,5 +52,5 @@
 - [Self-hosting overview](self-hosting/README.md)
 - [Run a name authority](self-hosting/name-authority.md)
 - [Run a relay](self-hosting/relay.md)
-- [Run the relay's onion service](self-hosting/nym-requester.md)
+- [Tor and your relay](self-hosting/nym-requester.md)
 - [Building Goblin](self-hosting/building.md)

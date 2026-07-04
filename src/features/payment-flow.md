@@ -43,7 +43,7 @@ Neither party pasted a slatepack, and neither needed the other online at the sam
 
 ## How the bytes travel
 
-Every message above rides [Tor](../pillars/nym.md), and the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it). The primary relay is dialed at its pinned [`.onion`](../pillars/nym-exit.md), so the payment path needs no public DNS and never touches the clear net, and it's fast: the money-path relay connects in a couple of seconds even from a cold app start, and a funded payment finalizes in about six seconds end to end. Other relays are reached over [Tor](../pillars/nym-client.md) to their clearnet hosts.
+Every message above rides [Tor](../pillars/nym.md), and the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it). The primary relay, like every other relay, is dialed over a [Tor exit](../pillars/nym-exit.md) to its clearnet host, so the payment path never touches the clear net from the device, and it's fast: the money-path relay connects in a few seconds even from a cold app start, and a funded payment finalizes in about eight seconds end to end.
 
 ## Requests (invoice flow)
 

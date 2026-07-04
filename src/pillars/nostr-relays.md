@@ -1,6 +1,6 @@
 # Relays
 
-> **Summary.** Relays are the public servers that carry Goblin's encrypted messages. Goblin ships a **candidate pool** of vetted relays, verifies each one locally before use, advertises a short DM-relay list ([NIP-17](https://nips.nostr.com/17) `kind 10050`) so others know where to reach you, and lets you edit the list. All relay traffic runs over [Tor](nym.md), and the primary relay is reached at its pinned [`.onion`](nym-exit.md).
+> **Summary.** Relays are the public servers that carry Goblin's encrypted messages. Goblin ships a **candidate pool** of vetted relays, verifies each one locally before use, advertises a short DM-relay list ([NIP-17](https://nips.nostr.com/17) `kind 10050`) so others know where to reach you, and lets you edit the list. All relay traffic runs over [Tor](nym.md), and every relay, including the primary, is reached over a [Tor exit](nym-exit.md) to its clearnet host.
 
 ## Motivation
 
@@ -8,7 +8,7 @@ Nostr has no central server: reachability depends on sender and receiver sharing
 
 ## How it works
 
-- **Defaults.** Out of the box Goblin advertises the relay the project operates (`relay.floonet.dev`) plus up to two relays drawn from the candidate pool below. It is a [Floonet](https://docs.floonet.dev) relay (the floonet-strfry package: stock [strfry](https://github.com/hoytech/strfry) with a write policy restricting stored kinds to the handful Goblin needs), and its pool entry advertises the operator's [Tor onion service](nym-exit.md), so the money path needs no public DNS. The previous default, `relay.goblin.st`, is retired on **2026-07-04**: wallets that still pin it keep working until then, and new wallets never see it.
+- **Defaults.** Out of the box Goblin advertises three Tor-exit-friendly relays: `relay.floonet.dev` (the project's own [Floonet](https://docs.floonet.dev) relay, the floonet-strfry package running stock [strfry](https://github.com/hoytech/strfry) with a write policy restricting stored kinds to the handful Goblin needs), plus `relay.0xchat.com` and `offchain.pub`. All three are reached over a [Tor exit](nym-exit.md) to their clearnet host; `relay.damus.io` and `nos.lol` are excluded because they refuse connections from Tor exit nodes. The previous default, `relay.goblin.st`, is retired on **2026-07-04**: wallets that still pin it keep working until then, and new wallets never see it.
 - **Advertising reachability.** Your wallet publishes a `kind 10050` DM-relay list (capped at 3) so a sender's wallet knows which relays to deliver your payment to. The same event carries an `encryption` tag advertising the wallet's [NIP-44 v3 capability](nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback). The list is also fanned out, publish-only, to the pool's *discovery* indexers so a payer who shares no relay with you can still find your inbox list. `nprofile` shares carry relay hints too, so a fresh recipient is reachable without any lookup.
 - **Selection is sticky.** The advertised set is picked once and persisted; there is no timer rotation, because churning a `kind 10050` list breaks payers' cached routing.
 - **Editing.** **Settings → Nostr Relays** shows your list and lets you add `wss://…` relays (URLs are normalized: a bare host gets `wss://`). "Save & reconnect" rewrites your `kind 10050` and restarts the [service](nostr-service.md) on the new set. A user-edited list disables automatic selection entirely.
@@ -25,7 +25,8 @@ Each entry carries:
 
 - **Roles**: `dm` (eligible to carry gift-wrapped payments) and/or `discovery` (an indexer that only ever receives the public identity events, never a wrap).
 - **A vetted date**: vetted entries are weighted 3:1 when the advertised set is drawn.
-- **Optionally, an `onion`**: the `.onion` address of that operator's [Tor onion service](nym-exit.md). The pinned pool carries one for `relay.floonet.dev`.
+
+An earlier pool schema also carried a per-relay `onion` field for a pinned onion service; build134 dropped it along with the onion-dialing path (see [The relay's Tor exit path](nym-exit.md)), so current pool entries carry neither an `onion` nor a co-located exit field.
 
 A pool relay is only ever used after passing a **NIP-11 gate**, checked lazily right before use (results cached for 24 hours): it must accept messages of at least 128 KiB (a worst-case payment wrap is ~66 KB on the wire), must not require payment, AUTH, or restricted writes, and must tolerate [NIP-59](https://nips.nostr.com/59)'s up-to-2-day backdated timestamps. The NIP-11 fetch itself runs over Tor.
 
@@ -33,7 +34,7 @@ The fetched pool file is validated locally (schema version, entry caps) and can 
 
 ## Reference
 
-- `goblin/src/nostr/pool.rs`: `RelayPool` / `PoolRelay` (the `onion` field), `PINNED_POOL`, `load()` / `refresh_if_stale()`, the NIP-11 gate (`nip11_pass()`, `probe()`), `weighted_order()`, `usable_discovery_relays()`, `MIN_MESSAGE_LENGTH = 131072`.
+- `goblin/src/nostr/pool.rs`: `RelayPool` / `PoolRelay`, `PINNED_POOL`, `load()` / `refresh_if_stale()`, the NIP-11 gate (`nip11_pass()`, `probe()`), `weighted_order()`, `usable_discovery_relays()`, `MIN_MESSAGE_LENGTH = 131072`.
 - `goblin/src/nostr/relays.rs`: `DEFAULT_RELAYS`, `MAX_DM_RELAYS = 3`, `normalize_relay_url()`; default name authority constants (`HOME_NIP05_DOMAIN`, `DEFAULT_NIP05_SERVER`).
 - Advertised-set selection and the discovery fan-out: `ensure_advertised_set()` and `publish_identity()` in `goblin/src/nostr/client.rs`.
 - Editor + "Save & reconnect": the relays page in `goblin/src/gui/views/goblin/mod.rs` (`SettingsPage::Relays`, `relay_summary()`); the row that opens it is the **Nostr Relays** entry in the Identity card.

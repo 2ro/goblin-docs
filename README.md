@@ -44,3 +44,7 @@ nginx serves docs.goblin.st from /opt/goblin/www-docs
 
 The nginx vhost template is in [`deploy/docs.goblin.st.conf`](deploy/docs.goblin.st.conf).
 Only the Markdown source is committed; `book/` is git-ignored and built on the server.
+
+---
+
+Built with AI pair-programming assistance (Claude).

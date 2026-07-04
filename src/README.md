@@ -14,7 +14,7 @@ Under the hood Goblin stands on three pillars:
 | --- | --- |
 | **[GRIM](pillars/grim-base.md)** | A complete, audited Grin wallet + node engine: seed, sync, and the Mimblewimble slatepack transaction machinery. Goblin forks it and keeps it. |
 | **[Nostr](pillars/nostr.md)** | The messaging layer. Usernames, encrypted payment messages (gift-wrapped slatepacks), and offline delivery, all without running our own bespoke server. |
-| **[Tor](pillars/nym.md)** | The transport. All relay traffic and every HTTP request rides Tor, embedded in-process, and the money-path relay is dialed at its pinned [`.onion`](pillars/nym-exit.md). Only the public Grin chain connection is direct, by design. |
+| **[Tor](pillars/nym.md)** | The transport. All relay traffic and every HTTP request rides Tor, embedded in-process, out through a [Tor exit](pillars/nym-exit.md) to each destination's ordinary clearnet host. Only the public Grin chain connection is direct, by design. |
 
 ## How to read these docs
 
@@ -24,7 +24,7 @@ The docs are organized from the outside in:
 2. **Pillars**: the three foundations ([GRIM](pillars/grim-base.md), [Nostr](pillars/nostr.md), [Tor](pillars/nym.md)), each broken into its component parts.
 3. **[Features](features/payment-flow.md)**: the things you actually *do*: pay, request, claim a name, onboard.
 4. **[Subsystems](subsystems/theme.md)**: the smaller machinery: themes, avatars, QR, localization, security.
-5. **[Operating Goblin](self-hosting/index.html)**: run your own name authority, relay, and onion service; build from source.
+5. **[Operating Goblin](self-hosting/index.html)**: run your own name authority and relay; build from source.
 
 Every component page follows the same shape:
 
