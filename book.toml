@@ -1,6 +1,6 @@
 [book]
 title = "Goblin Docs"
-description = "How Goblin works: a private, Cash-App-style Grin wallet built on GRIM, Nostr, and the Nym mixnet."
+description = "How Goblin works: a private, Cash-App-style Grin wallet built on GRIM, Nostr, and Tor."
 authors = ["The Goblin Developers"]
 language = "en"
 src = "src"

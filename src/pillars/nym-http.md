@@ -1,34 +1,31 @@
-# HTTP over the mixnet
+# HTTP over Tor
 
-> **Summary.** Every HTTP request Goblin makes (NIP-05 name resolution and registration, the price feed, avatar fetches, the relay pool and its NIP-11 probes) goes through the mixnet: the hostname is resolved over [encrypted DNS](nym-dns.md), TCP runs through the [tunnel](nym-client.md), TLS is validated against the hostname, and HTTP/1.1 runs on top. HTTPS to a host whose relay advertises a [scoped exit](nym-exit.md) rides that exit instead. There is no clearnet HTTP path.
+> **Summary.** Every HTTP request Goblin makes (NIP-05 name resolution and registration, the price feed, avatar fetches, the relay pool and its NIP-11 probes) goes through [Tor](nym-client.md). Requests to the `goblin.st` name authority ride a circuit to its pinned [`.onion`](nym-exit.md); the small clearnet lookups (pool refresh, price, avatars) ride Tor out through an exit relay, which resolves the hostname for you. TLS is validated against the hostname, and HTTP/1.1 runs on top. There is no clearnet HTTP path from the device.
 
 ## Motivation
 
-It would be easy to leave "just a name lookup" or "just the price" on the clear net. Goblin deliberately doesn't: a name lookup reveals *who you're about to pay*, and any clearnet request reveals your IP and ties you to the app. The rule is simple and absolute: **everything over the mixnet**, so there's no accidental leak to audit for.
+It would be easy to leave "just a name lookup" or "just the price" on the clear net. Goblin deliberately doesn't: a name lookup reveals *who you're about to pay*, and any clearnet request reveals your IP and ties you to the app. The rule is simple and absolute: **everything over Tor**, so there's no accidental leak to audit for.
 
 ## How it works
 
-`http_request_bytes()` waits for the shared tunnel (up to 30 seconds, starting it lazily if needed), then for each redirect hop:
+The shared HTTP helper waits for the [Tor client](nym-client.md) to be ready (starting it lazily if needed), then for each redirect hop:
 
-1. **Egress pick.** HTTPS to a host whose relay entry advertises a co-located exit (in practice, the money-path relay's NIP-11 probe) dials through that exit; any failure, and every other request, resolves the host over [DoT](nym-dns.md) and opens TCP through the tunnel. Neither the lookup nor the body ever touches the clear.
-2. **TLS.** For `https` the stream is wrapped in rustls with webpki roots and validated against the **hostname**, even though the dial went to a resolved IP, so a lying resolver or a hostile exit cannot man-in-the-middle the request.
-3. **HTTP/1.1** via hyper: a fixed `goblin-wallet` user agent, the caller's method, headers, and body, and a generous 60-second per-hop budget, because the mixnet adds deliberate per-hop delay.
-4. **Redirects** are followed like a browser, up to 5 hops: 301/302/303 turn into a bodiless GET, 307/308 replay the method and body.
+1. **Circuit pick.** A request to the name authority is dialed at its **pinned `.onion`** — the most sensitive HTTP the wallet makes, since it names who you're about to pay, so it never leaves an onion circuit. HTTPS to the money-path relay's own host (in practice its NIP-11 probe) rides that relay's onion. Every other request — the pool refresh, price, avatars — is handed to Tor **by hostname** and carried out through an exit relay, which does the DNS. Neither the lookup nor the body ever touches the clear net from your device.
+2. **TLS.** For `https` the Tor byte stream is wrapped in TLS and validated against the **hostname**, so a lying resolver or a hostile hop cannot man-in-the-middle the request.
+3. **HTTP/1.1** via hyper: a fixed `goblin-wallet` user agent, the caller's method, headers, and body, with a generous per-hop budget.
+4. **Redirects** are followed like a browser, up to a small hop cap: 301/302/303 turn into a bodiless GET, 307/308 replay the method and body.
 
-Logs never contain full URLs, only hosts. A string-bodied convenience wrapper, `http_request()`, sits on top.
+Logs never contain full URLs, only hosts. A string-bodied convenience wrapper sits on top of the byte-level helper.
 
-**Connections are reused.** Earlier builds opened a fresh handshake for every request, which made repeated lookups (price, usernames) noticeably slow; HTTP over the tunnel now keeps connections alive and reuses them. The **price feed** in particular paints instantly: the last fetched rate (if under 48 hours old) shows on the very first frame, and a live fetch fires the moment the tunnel is ready rather than waiting for the balance screen. That eager fetch doubles as an end-to-end probe: if it fails while the tunnel claims to be ready, the exit is condemned and replaced in seconds instead of minutes.
+**Connections are reused.** HTTP over Tor keeps circuits warm and reuses connections (keep-alive) instead of a fresh handshake per request, which is what makes repeated price and username lookups cheap. The **price feed** in particular paints instantly: the last fetched rate (if recent) shows on the very first frame, and a live fetch fires the moment Tor is ready rather than waiting for the balance screen.
 
 ## Reference
 
-In `goblin/src/nym/mod.rs`:
-
-- `http_request_bytes(method, url, body, headers) -> Option<(u16, Vec<u8>)>` and the `String`-bodied `http_request(...)`.
-- `request_once()`: the exit fork (`pool::exit_for_host(host)`), `dns::resolve()`, `tunnel.tcp_connect()`, `tls_connect()` (rustls + webpki roots, hostname-validated), one hyper HTTP/1.1 exchange.
-- `exit_connect()`: a mixnet stream to the operator's exit + the same `tls_connect()`, bounded by the shared bootstrap cap.
-- Budgets: `HTTP_TIMEOUT` (60 s per hop), `TUNNEL_WAIT` (30 s), `MAX_REDIRECTS` (5).
+- `http_request_bytes(method, url, body, headers) -> Option<(u16, Vec<u8>)>` and the `String`-bodied `http_request(...)`: the HTTP chokepoint, re-routed through arti.
+- Per request: the onion fork (`pool::onion_for_host(host)` and the pinned name-authority onion) via `TorClient::connect`, else a Tor circuit to the clearnet host; then a hostname-validated TLS wrap and one hyper HTTP/1.1 exchange.
 
 ## References
 
 - Where these calls originate: [NIP-05 name authority](../features/name-authority.md) (`goblin/src/nostr/nip05.rs`), the [relay pool](nostr-relays.md#the-candidate-pool) (`goblin/src/nostr/pool.rs`), and the price/avatar fetchers.
-- The tunnel underneath: [The in-process mixnet tunnel](nym-client.md).
+- The client underneath: [The embedded Tor client](nym-client.md).
+- Why the name authority needs no DNS: [Name resolution under Tor](nym-dns.md).

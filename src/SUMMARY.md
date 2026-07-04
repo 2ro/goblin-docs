@@ -22,14 +22,14 @@
   - [Storage, config & types](pillars/nostr-storage.md)
   - [Relays](pillars/nostr-relays.md)
 
-# Pillar 3: The Nym mixnet transport
+# Pillar 3: The Tor transport
 
-- [Nym in Goblin](pillars/nym.md)
-  - [The in-process mixnet tunnel](pillars/nym-client.md)
-  - [The scoped relay exit](pillars/nym-exit.md)
-  - [DNS over the mixnet](pillars/nym-dns.md)
-  - [Relay traffic over the mixnet](pillars/nym-relay-transport.md)
-  - [HTTP over the mixnet](pillars/nym-http.md)
+- [Tor in Goblin](pillars/nym.md)
+  - [The embedded Tor client](pillars/nym-client.md)
+  - [The relay's onion service](pillars/nym-exit.md)
+  - [Name resolution under Tor](pillars/nym-dns.md)
+  - [Relay traffic over Tor](pillars/nym-relay-transport.md)
+  - [HTTP over Tor](pillars/nym-http.md)
 
 # Features
 
@@ -52,5 +52,5 @@
 - [Self-hosting overview](self-hosting/README.md)
 - [Run a name authority](self-hosting/name-authority.md)
 - [Run a relay](self-hosting/relay.md)
-- [Run a mixnet exit](self-hosting/nym-requester.md)
+- [Run the relay's onion service](self-hosting/nym-requester.md)
 - [Building Goblin](self-hosting/building.md)

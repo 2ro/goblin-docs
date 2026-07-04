@@ -1,6 +1,6 @@
 # Security hardening
 
-> **Summary.** A grab-bag of the defensive choices that don't fit on one feature page: never auto-paying a request, binding replies to the expected counterparty, hard size ceilings, encrypted keys at rest, replay protection, rate limiting, and routing everything over the mixnet. This page is a map to where each lives.
+> **Summary.** A grab-bag of the defensive choices that don't fit on one feature page: never auto-paying a request, binding replies to the expected counterparty, hard size ceilings, encrypted keys at rest, replay protection, rate limiting, and routing everything over Tor. This page is a map to where each lives.
 
 ## Motivation
 
@@ -17,14 +17,15 @@ A wallet that accepts messages from strangers and moves money is an attractive t
 | **Processed-id archive + 30-day TTL** | Replaying an old payment message | [Storage](../pillars/nostr-storage.md) (`processed` db) |
 | **NIP-98 single-use auth** | Replaying a name registration request | [Name authority](../features/name-authority.md) |
 | **Per-sender rate limits** | Spam flooding from one key | [NostrService](../pillars/nostr-service.md) (contact 30/h, unknown 10/h) |
-| **Everything over Nym, DNS included** | IP exposure + timing correlation; clearnet lookups leaking who you contact | [Nym](../pillars/nym.md), [DNS](../pillars/nym-dns.md) |
-| **Hostname-validated TLS through every egress** | A hostile exit or lying resolver reading or MITMing a connection | [Nym](../pillars/nym.md), [Scoped exit](../pillars/nym-exit.md) |
+| **Everything over Tor, no clearnet lookups** | Your IP / network location exposed to the relay and on-path observers | [Tor](../pillars/nym.md), [Name resolution](../pillars/nym-dns.md) |
+| **Relay-side randomized release + NIP-59 backdating** | Matching a send to a receive by timing | [Tor pillar](../pillars/nym.md#timing-privacy-the-relay-does-it) |
+| **Hostname-validated TLS over every circuit** | A hostile hop or lying resolver reading or MITMing a connection | [Tor](../pillars/nym.md), [Onion service](../pillars/nym-exit.md) |
 | **NIP-44 v3 context binding (when negotiated)** | Ciphertext from one wrap layer replayed as the other | [Protocol](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) |
 | **Relays gated by a local NIP-11 probe** | A broken or hostile relay pool entry silently dropping payments | [Relays](../pillars/nostr-relays.md#the-candidate-pool) |
 | **Reserved names, homograph folding, cooldown** | Impersonation / squatting on names | [Name authority](../features/name-authority.md) |
 | **Tag-independent classification** | A sender lying about message type via tags | [Protocol](../pillars/nostr-protocol.md) (classify by parsed slate only) |
 
-On the server side, the [name authority](../self-hosting/name-authority.md) runs under a hardened systemd sandbox and trusts an `X-Real-IP` set by its reverse proxy for rate limiting. Because Goblin clients share mixnet exit IPs, server-side abuse controls are tuned to be per-connection / per-account rather than naive per-IP.
+On the server side, the [name authority](../self-hosting/name-authority.md) runs under a hardened systemd sandbox and trusts an `X-Real-IP` set by its reverse proxy for rate limiting. Because Goblin clients reach the relay over Tor (with the onion service on, connections arrive from the co-located Tor process; other HTTP arrives from shared Tor exit IPs), server-side abuse controls are tuned to be per-connection / per-account rather than naive per-IP.
 
 ## References
 

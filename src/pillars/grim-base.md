@@ -15,21 +15,21 @@ GRIM bundles the Grin node and wallet libraries as path dependencies and drives 
 - **The slatepack transaction machine.** Grin's interactive flow (Standard (send) and Invoice (request), each a two-step slate exchange) and the slatepack armor encoding live in the Grin wallet library. Goblin's entire job is to *carry* these slatepacks; it never alters how they're built or validated.
 - **The egui shell & platform layer.** Window, fonts, Android/desktop entry points, camera, and storage abstractions come from GRIM.
 
-What Goblin **adds** lives in three new trees that GRIM doesn't have (`src/nostr/`, `src/nym/`, and `src/gui/views/goblin/`), plus a handful of hooks into the wallet lifecycle (`src/wallet/wallet.rs`) to start/stop the Nostr service and dispatch `WalletTask::Nostr*` jobs.
+What Goblin **adds** lives in two new trees that GRIM doesn't have (`src/nostr/` and `src/gui/views/goblin/`), plus a `src/tor/` transport **copied from GRIM's own proven Tor engine** and pointed at the relay, and a handful of hooks into the wallet lifecycle (`src/wallet/wallet.rs`) to start/stop the Nostr service and dispatch `WalletTask::Nostr*` jobs.
 
-What Goblin **changes** in upstream is intentionally minimal: it swaps the default presented surface to the Goblin UI, removes the old clearnet/Tor transport in favor of Nym, and rebrands. The original GRIM tree is kept side-by-side (at `../grim`) precisely so the fork can be diffed and stay close to upstream.
+What Goblin **changes** in upstream is intentionally minimal: it swaps the default presented surface to the Goblin UI, routes all of its Nostr and HTTP traffic through that embedded Tor transport, and rebrands. The original GRIM tree is kept side-by-side (at `../grim`) precisely so the fork can be diffed and stay close to upstream.
 
 ## Reference
 
 - **Crate identity.** The package is still named `grim` (`version = "0.3.6"`), the binary is `goblin`; see `goblin/Cargo.toml` (`[package]`, `[[bin]]`). The node/wallet libraries are path deps: `grin_api = { path = "node/api" }`, `grin_chain`, `grin_wallet_*`, etc.
 - **Versioning is build-number based, off the fork point.** `goblin/build.rs` defines `GOBLIN_FORK_BASE = "b51a46b"` (the GRIM commit Goblin forked from) and computes **Build N = number of commits since the fork** via `git rev-list`. An explicit `GOBLIN_BUILD` env var overrides it (used by CI single-commit public builds). So Goblin ships "Build 97," not a semver.
-- **Release profiles.** `[profile.release]` strips symbols (the nym+nostr+grin tree is ~16 MB of symbols); `[profile.release-apk]` adds `opt-level="z"`, `lto`, `panic="abort"` for Android size.
+- **Release profiles.** `[profile.release]` strips symbols (the tor+nostr+grin tree is ~16 MB of symbols); `[profile.release-apk]` adds `opt-level="z"`, `lto`, `panic="abort"` for Android size.
 - **Upstream.** GRIM lives at <https://code.gri.mw/GUI/grim> (author *Ardocrat*). Goblin's `repository` field still points there.
 
 To see exactly what the fork changed, diff the two trees:
 
 ```sh
-diff -ru ../grim/src ./src        # new: nostr/, nym/, gui/views/goblin/
+diff -ru ../grim/src ./src        # new: nostr/, gui/views/goblin/; tor/ from GRIM
 diff -ru ../grim/Cargo.toml ./Cargo.toml
 ```
 

@@ -21,7 +21,7 @@ src/
   SUMMARY.md       the chapter tree
   README.md        Introduction
   overview/        what Goblin is + architecture
-  pillars/         GRIM · Nostr · Nym (the three foundations)
+  pillars/         GRIM · Nostr · Tor (the three foundations)
   features/        payment flow, send/request, name authority, onboarding, cancel/decline
   subsystems/      theme, avatars, QR, localization, security
   self-hosting/    run your own authority / relay / requester; building

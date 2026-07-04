@@ -1,46 +1,49 @@
-# The in-process mixnet tunnel
+# The embedded Tor client
 
-> **Summary.** Goblin links the mixnet client directly and runs one process-lifetime **tunnel** (the `smolmix` crate) on a private tokio runtime: raw TCP over the mixnet to a public exit gateway. It's warmed up at app launch, gated on a real end-to-end liveness probe, health-checked for its whole life, and rebuilt on a fresh exit the moment the current one goes bad. Losing any one exit never takes the wallet down.
+> **Summary.** Goblin links Tor directly with [arti](https://tpo.pages.torproject.net/core/arti/) (Tor written in Rust) and runs one process-lifetime client, copied almost verbatim from our sister wallet [GRIM](grim-base.md)'s proven engine. It bootstraps at app launch, it's gated on a real end-to-end readiness signal before the UI ever shows "Connected," it's health-checked for its whole life, and a dead circuit is rebuilt automatically. Goblin only ever *dials* over Tor — it never hosts a service — which makes it simpler than GRIM, which also hosts an onion to receive.
 
 ## Motivation
 
-An earlier design ran Nym as a separate sidecar binary, then as an in-process SOCKS5 client. Both worked, but the SOCKS5 seam hid the thing that matters most on a money path: **whether the exit is actually carrying your traffic**. Some public exits accept the handshake and then silently deliver nothing; a wallet that shows "Connected" while blackholed is worse than one that shows "Connecting". The current tunnel design makes exit health observable and enforceable: bounded bootstraps, a liveness gate before a tunnel is ever used, and a watchdog that condemns and replaces a dead exit automatically.
+Goblin's transport used to be the Nym mixnet, linked in-process. That path broke for reasons outside our control — Nym is removing the free bandwidth tier the wallet floated on (it's testnet scaffolding written to expire at UTC midnight, with public gateways moving to a paid, NYM-token model) — so a money wallet could not keep standing on it. See [Tor in Goblin](nym.md#why-tor-and-not-a-mixnet).
+
+Rather than write our own Tor engine, Goblin **copies GRIM's**. GRIM's `src/tor/` is a small, four-file engine already running in production on desktop and Android, so Goblin inherits a known-good implementation instead of paying for one twice. Two technical choices come along verbatim because GRIM already settled them:
+
+- **arti 0.43** across the whole arti family (`arti-client`, `tor-rtcompat`, and the onion/crypto crates).
+- **The native-tls Tor runtime** (`TokioNativeTlsRuntime`), *not* rustls. This deliberately sidesteps the rustls crypto-provider (ring / aws-lc-rs) conflict we fought all through the Nym era. We take GRIM's TLS path and never re-open that wound.
 
 ## How it works
 
-At startup `warm_up()` spawns a background thread that builds the tunnel on a dedicated tokio runtime and keeps both alive for the life of the process:
+At startup `warm_up()` spawns a background task that bootstraps the Tor client on a dedicated runtime and keeps it alive for the life of the process:
 
-1. **Exit selection.** By default the tunnel auto-selects a public exit gateway from the network. A **preferred exit** (the anchor) can be configured with the `GOBLIN_NYM_IPR` environment variable, at runtime or baked in at build time (the only option on Android). Each selection cycle tries the anchor exactly once, then falls back to auto-select for every further attempt, and the next cycle tries the anchor again. Pin-only operation is deliberately impossible: a dead anchor costs seconds, never a lockout.
-2. **Bounded bootstrap.** A single build attempt is capped at 20 seconds. A healthy bootstrap completes in a few seconds; a dead gateway pick would otherwise block for over a minute inside the SDK before the wallet could re-select.
-3. **Liveness gate.** A freshly built tunnel must pass an end-to-end probe (a TCP connect through the tunnel to a stable public address) before it is published to the rest of the app. An exit that handshakes but never delivers data is re-selected immediately instead of blackholing every consumer.
-4. **Health watchdog.** A published tunnel is watched with two signals: **relay reachability** (authoritative while a wallet's relay service is running: an exit whose relays stay unreachable past a grace period is condemned) and a cheap periodic **keepalive probe** (the backstop, and it keeps the exit session from idling out). Condemned exits are torn down and replaced with a fresh one, rate-limited by a minimum exit lifetime so a transient hiccup can never thrash into a reselect loop.
+1. **One bootstrap.** Tor is a *single* bootstrap — dramatically simpler than the mixnet path it replaces, which needed two mixnet clients racing each other for bandwidth grants plus a sequencer just to get connected. The bootstrap overlaps with app launch, so it's mostly invisible; warming the circuit at launch hides even the first-send edge.
+2. **Onion dialing.** Once bootstrapped, the client opens circuits to the pinned `.onion` addresses for the [relay](nym-exit.md) and the [name authority](../features/name-authority.md), and Tor-to-clearnet circuits for the [small background lookups](nym-http.md). Goblin only connects *out*; it never publishes a service of its own.
+3. **Readiness gate.** The UI refuses to show "Connected" until the transport is genuinely live: arti has bootstrapped, the onion circuit is up, **and** a required relay is actually subscribed on it. A pipe that opened but can't yet deliver never latches the UI green.
+4. **Health and rebuild.** A live circuit is watched, and a circuit that dies is torn down and rebuilt automatically. The wallet's existing "the connection died, bring it back" logic and its background/foreground handling map cleanly onto Tor circuits.
 
-**Generations and readiness.** Every published tunnel gets a monotonically increasing generation number, and the Nostr client tags its relay-liveness reports with the generation it dialed on. `is_ready()` (cheap, safe to poll every UI frame) says the tunnel is up; `transport_ready()` is the authoritative "Connected over Nym" signal, true only when a relay is connected **and** subscribed on the *current* generation. A stale exit can never latch the UI green.
+**Readiness, in detail (preserved from the old transport).** The honest "carrying traffic on the *current* connection" signal is load-bearing and survives the swap intact. `warm_up()` starts the client idempotently; a cheap `is_ready()` (safe to poll every UI frame) says the client is up; and the authoritative `transport_ready()` is true only when a relay is connected **and** subscribed on the current circuit generation. A stale or half-open circuit can never falsely report "Connected over Tor." Only the mechanism's *target* changed — from a mixnet tunnel to a Tor circuit — not its semantics.
 
-**Identity.** The tunnel uses ephemeral in-memory keys: a fresh mixnet identity per run, nothing persisted.
+**Identity.** Circuits use fresh, ephemeral state; nothing about your Tor usage is persisted as a stable identity.
 
-**Warm connect from cached choices.** The last entry gateway and preferred exit that worked are persisted across launches (only which ones were picked, never any key), and are tried first on the next cold start instead of re-running the auto-select lottery against a possibly-dead pick. Measured effect: cold connect to a ready tunnel drops from about 5.6 s to about 4.4 s. A cached choice that fails just clears itself and falls back to normal auto-select, so a stale hint can never cost more than one attempt.
+**Battery.** A persistent Tor circuit is lighter than a live mixnet client: there is no continuous cover-traffic machinery to run and no per-hop delay work to perform, so always-listening costs less.
 
-**Throughput.** The tunnel's TCP buffers were raised from 8 KB to 256 KB and the mixnet packet burst from 1 to 64, lifting the bulk-transfer ceiling roughly 32x, so relay backfill and profile/JSON reads no longer crawl at a few KB/s. HTTP requests over the tunnel also reuse connections (keep-alive) instead of a fresh handshake per request, which is what made repeated price and username lookups slow before.
+## Mobile
 
-The tunnel is the **fallback and everything-else path**: discovery relays, secondary relays, HTTP, and DNS all ride it, and the money-path relay falls back to it whenever its [scoped exit](nym-exit.md) is unavailable.
+**Android is solved** — GRIM already ships embedded Tor there and the recipe copies over. It comes down to two things: **arti compiles into the app's native library** (the same `.so` the rest of the Rust already lives in — no separate process), and a few environment variables are set **before the Rust runtime starts**. The critical one is `ARTI_FS_DISABLE_PERMISSION_CHECKS=true` (GRIM sets it in `MainActivity.java` before loading native code): arti's `fs-mistrust` layer normally refuses to start if its state directory has "too-open" Unix permissions, and Android's app sandbox always trips that check — so without this flag Tor simply never boots on a phone. It's a known one-line fix, not a research problem.
 
-> **Implementation footnote (TLS provider).** Linking Nym pulls in `aws-lc-rs` alongside Goblin's `ring`. With rustls 0.23 unable to auto-pick a default crypto provider, the first TLS handshake would panic. Goblin installs the ring provider explicitly at startup (`rustls::crypto::ring::default_provider().install_default()`). Worth knowing if you hack on the transport.
+**iOS** should work — nothing about arti is Android-specific — but it is treated as unproven until we ship it, so it gets its own spike. Two things going in: iOS runs **plain Tor without pluggable-transport bridges** (the platform won't let an app spawn the helper processes those need, which is fine for reaching the relay), and the same `fs-mistrust` / state-directory questions get answered against iOS's sandbox.
 
 ## Reference
 
-In `goblin/src/nym/nymproc.rs`:
+In `goblin/src/tor/` (copied from GRIM's `grim/src/tor/`, four files: `config.rs`, `mod.rs`, `tor.rs`, `types.rs`):
 
-- `warm_up()`: idempotent background start; `run_tunnel()`: build/probe/publish/watch loop on a dedicated runtime.
-- `is_ready()`, `transport_ready()`, `tunnel_generation()`, `report_relay_live()` / `report_relay_down()`, `set_relay_consumer()`: the readiness and liveness surface the Nostr client and the UI use.
-- `ExitSelector` + `anchor_recipient()`: the prefer-with-fallback anchor policy (`GOBLIN_NYM_IPR`, runtime or baked via `option_env!`).
-- Budgets: `BOOTSTRAP_TIMEOUT` (20 s, shared with the scoped-exit dial), `RELAY_GRACE` (25 s), `RELAY_HARD_GRACE` (90 s), `MIN_EXIT_LIFETIME` (20 s), keepalive every 60 s with 3 strikes.
-- `wait_for_tunnel()`: lazy init for consumers; `tunnel()`: the shared handle (cheap clone).
-- Cached gateway/exit hints: persisted in [config](../pillars/nostr-storage.md)-adjacent settings (`goblin/src/settings/config.rs`), self-clearing on failure.
+- `warm_up()`: idempotent background start; the bootstrap/dial/readiness/watch loop on a dedicated runtime.
+- `is_ready()` / `transport_ready()`: the readiness surface the Nostr client and the UI use; `transport_ready()` is relay-gated on the current circuit generation.
+- arti wiring: `TorClient` on the `TokioNativeTlsRuntime`, arti 0.43.
+- Android bring-up: native-lib link + `ARTI_FS_DISABLE_PERMISSION_CHECKS=true` set in `MainActivity.java` before native code loads.
 
 ## References
 
-- The liveness probe and in-tunnel DNS: [DNS over the mixnet](nym-dns.md).
+- Onion name resolution and the (absence of a) DNS layer: [Name resolution under Tor](nym-dns.md).
 - Consumers: [Relay transport](nym-relay-transport.md), [HTTP](nym-http.md).
-- The money-path egress that bypasses this tunnel: [The scoped relay exit](nym-exit.md).
-- Nym SDK (Rust): <https://nym.com/docs/developers/rust>.
+- The money-path destination this client dials: [The relay's onion service](nym-exit.md).
+- arti (Tor in Rust): <https://tpo.pages.torproject.net/core/arti/>.
