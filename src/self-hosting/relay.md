@@ -9,9 +9,9 @@ A relay only needs to do one thing for Goblin: accept and serve the gift-wrapped
 ## How it works
 
 - **strfry, unmodified**, plus a **write-policy plugin** that only admits the kinds Goblin uses: profiles (`kind 0`), contact/relay lists, gift wraps (`kind 1059`), and the relay-list kinds (`10002` / `10050`). Everything else is rejected, so the relay won't fill with unrelated content.
-- Clients reach it over `wss://`, **over [Tor](../pillars/nym-relay-transport.md)**: every wallet connection arrives from a shared Tor exit IP, which is why abuse controls are per-connection rather than naive per-IP.
+- Clients reach it over `wss://`, **over [Tor](../pillars/tor-relay-transport.md)**: every wallet connection arrives from a shared Tor exit IP, which is why abuse controls are per-connection rather than naive per-IP.
 - It's typically fronted by the same TLS reverse proxy as the [name authority](name-authority.md), with the websocket location proxied to strfry's loopback port.
-- **Make sure Tor exit traffic isn't blocked.** Wallets reach your relay exclusively [over Tor](../pillars/nym-exit.md), so a CDN or WAF rule that blocks Tor exit nodes (Cloudflare's "Block Tor" toggle, for example) will silently cut every Goblin wallet off. An earlier build ran a dedicated Tor onion service in front of the relay; that requirement is retired (see [Tor and your relay](nym-requester.md)), and a plain clearnet-reachable relay works fine today.
+- **Make sure Tor exit traffic isn't blocked.** Wallets reach your relay exclusively [over Tor](../pillars/tor-exit.md), so a CDN or WAF rule that blocks Tor exit nodes (Cloudflare's "Block Tor" toggle, for example) will silently cut every Goblin wallet off. An earlier build ran a dedicated Tor onion service in front of the relay; that requirement is retired (see [Tor and your relay](tor-relay.md)), and a plain clearnet-reachable relay works fine today.
 
 ## Deploying
 
@@ -26,5 +26,5 @@ The recommended path is a [Floonet relay package](https://docs.floonet.dev): **f
 
 ## References
 
-- How clients connect: [Relay traffic over Tor](../pillars/nym-relay-transport.md).
-- Why an onion service is no longer required: [Tor and your relay](nym-requester.md).
+- How clients connect: [Relay traffic over Tor](../pillars/tor-relay-transport.md).
+- Why an onion service is no longer required: [Tor and your relay](tor-relay.md).

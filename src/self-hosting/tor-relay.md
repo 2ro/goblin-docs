@@ -1,6 +1,6 @@
 # Tor and your relay (the onion service is retired)
 
-> **Summary.** Goblin wallets reach relays over [Tor](../pillars/nym.md) automatically: the client dials a Tor-exit circuit to your relay's ordinary clearnet host. There is nothing for a relay operator to run for Tor support today. **This used to not be true**: builds through 133 needed operators to front their relay with a system-Tor onion service, which this page originally documented. Build 134 dropped the pinned onion (it flapped under load) in favor of the plain Tor-exit path, so that setup is retired.
+> **Summary.** Goblin wallets reach relays over [Tor](../pillars/tor.md) automatically: the client dials a Tor-exit circuit to your relay's ordinary clearnet host. There is nothing for a relay operator to run for Tor support today. **This used to not be true**: builds through 133 needed operators to front their relay with a system-Tor onion service, which this page originally documented. Build 134 dropped the pinned onion (it flapped under load) in favor of the plain Tor-exit path, so that setup is retired.
 
 ## What this means for operators today
 
@@ -20,6 +20,6 @@ A `HiddenServiceDir` held the onion service's keys, and wallets pinned the resul
 
 ## References
 
-- Why the onion path was dropped: [The relay's Tor exit path](../pillars/nym-exit.md).
+- Why the onion path was dropped: [The relay's Tor exit path](../pillars/tor-exit.md).
 - Running the relay itself: [Run a relay](relay.md).
-- The client that dials it: [The embedded Tor client](../pillars/nym-client.md).
+- The client that dials it: [The embedded Tor client](../pillars/tor-client.md).

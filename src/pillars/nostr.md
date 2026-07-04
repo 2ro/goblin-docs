@@ -14,7 +14,7 @@ Nostr is a good fit because it already solves the boring parts:
 - **Human names without a blockchain.** [NIP-05](../features/name-authority.md) maps `alice@goblin.st` to a key over plain HTTPS.
 - **An existing, decentralized network.** No bespoke server to run; any relay works, and you can run your own.
 
-Goblin could have built a custom relay (the way [grinbox](https://github.com/vault713/grinbox) did for Grin years ago). Using Nostr instead means inheriting a maintained ecosystem and standard, audited encryption, and adding [Tor](nym.md) *underneath* to hide the one thing Nostr alone can't: your network location from the relay.
+Goblin could have built a custom relay (the way [grinbox](https://github.com/vault713/grinbox) did for Grin years ago). Using Nostr instead means inheriting a maintained ecosystem and standard, audited encryption, and adding [Tor](tor.md) *underneath* to hide the one thing Nostr alone can't: your network location from the relay.
 
 ## The parts
 

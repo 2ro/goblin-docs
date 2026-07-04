@@ -7,7 +7,7 @@
 - **GRIM** builds and finalizes the Grin slatepacks.
 - **The [Nostr protocol](../pillars/nostr-protocol.md)** wraps each slatepack as an encrypted message.
 - **The [NostrService](../pillars/nostr-service.md)** publishes and receives them.
-- **[Tor](../pillars/nym.md)** carries every byte.
+- **[Tor](../pillars/tor.md)** carries every byte.
 - **The [ingest policy](../pillars/nostr-ingest.md)** decides what each side does with what it receives.
 
 ## Standard payment, step by step
@@ -30,7 +30,7 @@ ALICE                                                   BOB
 
 1. **Resolve.** If you typed `bob`, the wallet resolves it to an `npub` via [NIP-05](name-authority.md), an HTTPS lookup that goes over Tor. (Paste an `npub`/`nprofile` and this is skipped; relay hints may come along for free.)
 2. **Build leg 1.** GRIM creates the Standard-1 slatepack for `5 ツ` to Bob and records `tx_meta` (`direction = Sent`, `status = Created`).
-3. **Wrap & send.** The [send pipeline](../pillars/nostr-service.md) builds a `kind 14` rumor (preamble + slatepack + note), seals and gift-wraps it ([NIP-59](../pillars/nostr-protocol.md)), and publishes the `kind 1059` to *your* relays and Bob's DM relays, all over [Tor](../pillars/nym-relay-transport.md). Status → `AwaitingS2`. The UI shows a spinner.
+3. **Wrap & send.** The [send pipeline](../pillars/nostr-service.md) builds a `kind 14` rumor (preamble + slatepack + note), seals and gift-wraps it ([NIP-59](../pillars/nostr-protocol.md)), and publishes the `kind 1059` to *your* relays and Bob's DM relays, all over [Tor](../pillars/tor-relay-transport.md). Status → `AwaitingS2`. The UI shows a spinner.
 4. **Bob ingests.** Bob's wallet (even if just reconnected) pulls the gift wrap, unwraps it, parses the slate, and runs [`decide()`](../pillars/nostr-ingest.md). A new payment under the default policy → `AutoReceive`.
 5. **Build leg 2.** Bob's GRIM builds the Standard-2 reply.
 6. **Reply.** Bob's wallet gift-wraps and publishes it back to Alice's relays, over Tor.
@@ -43,7 +43,7 @@ Neither party pasted a slatepack, and neither needed the other online at the sam
 
 ## How the bytes travel
 
-Every message above rides [Tor](../pillars/nym.md), and the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it). The primary relay, like every other relay, is dialed over a [Tor exit](../pillars/nym-exit.md) to its clearnet host, so the payment path never touches the clear net from the device, and it's fast: the money-path relay connects in a few seconds even from a cold app start, and a funded payment finalizes in about eight seconds end to end.
+Every message above rides [Tor](../pillars/tor.md), and the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it). The primary relay, like every other relay, is dialed over a [Tor exit](../pillars/tor-exit.md) to its clearnet host, so the payment path never touches the clear net from the device, and it's fast: the money-path relay connects in a few seconds even from a cold app start, and a funded payment finalizes in about eight seconds end to end.
 
 ## Requests (invoice flow)
 

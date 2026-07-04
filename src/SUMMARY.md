@@ -24,12 +24,12 @@
 
 # Pillar 3: The Tor transport
 
-- [Tor in Goblin](pillars/nym.md)
-  - [The embedded Tor client](pillars/nym-client.md)
-  - [The relay's Tor exit path](pillars/nym-exit.md)
-  - [Name resolution under Tor](pillars/nym-dns.md)
-  - [Relay traffic over Tor](pillars/nym-relay-transport.md)
-  - [HTTP over Tor](pillars/nym-http.md)
+- [Tor in Goblin](pillars/tor.md)
+  - [The embedded Tor client](pillars/tor-client.md)
+  - [The relay's Tor exit path](pillars/tor-exit.md)
+  - [Name resolution under Tor](pillars/tor-dns.md)
+  - [Relay traffic over Tor](pillars/tor-relay-transport.md)
+  - [HTTP over Tor](pillars/tor-http.md)
 
 # Features
 
@@ -52,5 +52,5 @@
 - [Self-hosting overview](self-hosting/README.md)
 - [Run a name authority](self-hosting/name-authority.md)
 - [Run a relay](self-hosting/relay.md)
-- [Tor and your relay](self-hosting/nym-requester.md)
+- [Tor and your relay](self-hosting/tor-relay.md)
 - [Building Goblin](self-hosting/building.md)

@@ -17,9 +17,9 @@ A wallet that accepts messages from strangers and moves money is an attractive t
 | **Processed-id archive + 30-day TTL** | Replaying an old payment message | [Storage](../pillars/nostr-storage.md) (`processed` db) |
 | **NIP-98 single-use auth** | Replaying a name registration request | [Name authority](../features/name-authority.md) |
 | **Per-sender rate limits** | Spam flooding from one key | [NostrService](../pillars/nostr-service.md) (contact 30/h, unknown 10/h) |
-| **Everything over Tor, no clearnet lookups** | Your IP / network location exposed to the relay and on-path observers | [Tor](../pillars/nym.md), [Name resolution](../pillars/nym-dns.md) |
-| **Relay-side randomized release + NIP-59 backdating** | Matching a send to a receive by timing | [Tor pillar](../pillars/nym.md#timing-privacy-the-relay-does-it) |
-| **Hostname-validated TLS over every circuit** | A hostile hop or lying resolver reading or MITMing a connection | [Tor](../pillars/nym.md), [Tor exit path](../pillars/nym-exit.md) |
+| **Everything over Tor, no clearnet lookups** | Your IP / network location exposed to the relay and on-path observers | [Tor](../pillars/tor.md), [Name resolution](../pillars/tor-dns.md) |
+| **Relay-side randomized release + NIP-59 backdating** | Matching a send to a receive by timing | [Tor pillar](../pillars/tor.md#timing-privacy-the-relay-does-it) |
+| **Hostname-validated TLS over every circuit** | A hostile hop or lying resolver reading or MITMing a connection | [Tor](../pillars/tor.md), [Tor exit path](../pillars/tor-exit.md) |
 | **NIP-44 v3 context binding (when negotiated)** | Ciphertext from one wrap layer replayed as the other | [Protocol](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) |
 | **Relays gated by a local NIP-11 probe** | A broken or hostile relay pool entry silently dropping payments | [Relays](../pillars/nostr-relays.md#the-candidate-pool) |
 | **Reserved names, homograph folding, cooldown** | Impersonation / squatting on names | [Name authority](../features/name-authority.md) |

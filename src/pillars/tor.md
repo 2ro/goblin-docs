@@ -24,7 +24,7 @@ Tor has none of those properties. It is free, unmetered, has no token, no bondin
 
 The Tor client is a **direct dependency**, linked into the binary via `arti-client`, no sidecar process and no bundled binary to ship or sideload. Every connection Goblin makes, a Nostr relay websocket or an HTTP request, rides the same kind of circuit: a **Tor-to-clearnet circuit** out through a normal exit relay to the destination's ordinary hostname. Tor resolves the hostname at the exit, so the device never emits a DNS query and never reveals its IP.
 
-An earlier build (133) pinned the money-path relay behind a dedicated `.onion` address and dialed it directly over an onion circuit. Build 134 dropped that: the shared onion hop flapped under load and could stall a payment mid-handshake, so every relay, including `relay.floonet.dev`, is now reached the same way as any other, over a Tor exit. See [The relay's Tor exit path](nym-exit.md) for that history.
+An earlier build (133) pinned the money-path relay behind a dedicated `.onion` address and dialed it directly over an onion circuit. Build 134 dropped that: the shared onion hop flapped under load and could stall a payment mid-handshake, so every relay, including `relay.floonet.dev`, is now reached the same way as any other, over a Tor exit. See [The relay's Tor exit path](tor-exit.md) for that history.
 
 The pinned relay set is now three Tor-exit-friendly relays: `relay.floonet.dev`, `relay.0xchat.com`, and `offchain.pub`. (`relay.damus.io` and `nos.lol` refuse connections from Tor exit nodes, so they aren't viable defaults under an all-Tor transport.)
 
@@ -34,11 +34,11 @@ The component pages:
 
 | Page | Covers | File |
 | --- | --- | --- |
-| [The embedded Tor client](nym-client.md) | Bootstrapping arti in-process, readiness, the health/rebuild loop, mobile | `src/tor/` |
-| [The relay's Tor exit path](nym-exit.md) | Dialing the relay over a Tor exit; the retired onion service | `src/tor/`, `pool.rs` |
-| [Name resolution under Tor](nym-dns.md) | How every hostname resolves at the Tor exit without a device-side DNS query | (arti) |
-| [Relay traffic over Tor](nym-relay-transport.md) | The websocket transport for the relay pool, over a Tor `DataStream` | `transport` |
-| [HTTP over Tor](nym-http.md) | HTTP requests over a Tor exit to a clearnet host | `mod.rs` |
+| [The embedded Tor client](tor-client.md) | Bootstrapping arti in-process, readiness, the health/rebuild loop, mobile | `src/tor/` |
+| [The relay's Tor exit path](tor-exit.md) | Dialing the relay over a Tor exit; the retired onion service | `src/tor/`, `pool.rs` |
+| [Name resolution under Tor](tor-dns.md) | How every hostname resolves at the Tor exit without a device-side DNS query | (arti) |
+| [Relay traffic over Tor](tor-relay-transport.md) | The websocket transport for the relay pool, over a Tor `DataStream` | `transport` |
+| [HTTP over Tor](tor-http.md) | HTTP requests over a Tor exit to a clearnet host | `mod.rs` |
 
 ## Timing privacy: the relay does it
 

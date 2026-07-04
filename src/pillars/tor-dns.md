@@ -9,10 +9,10 @@
 
 ## Historical note
 
-An earlier build (133) pinned the money-path relay and the `goblin.st` name authority behind dedicated `.onion` addresses, which resolve inside Tor's own distributed hash and need no DNS lookup at all. Build 134 dropped that pinned onion (see [The relay's Tor exit path](nym-exit.md)), so every hostname, including those two, now takes the exit-resolution path above.
+An earlier build (133) pinned the money-path relay and the `goblin.st` name authority behind dedicated `.onion` addresses, which resolve inside Tor's own distributed hash and need no DNS lookup at all. Build 134 dropped that pinned onion (see [The relay's Tor exit path](tor-exit.md)), so every hostname, including those two, now takes the exit-resolution path above.
 
 ## References
 
-- Who needs a clearnet host resolved: [HTTP over Tor](nym-http.md) (pool refresh, price, avatars, name lookups).
-- The client that carries all of this: [The embedded Tor client](nym-client.md).
+- Who needs a clearnet host resolved: [HTTP over Tor](tor-http.md) (pool refresh, price, avatars, name lookups).
+- The client that carries all of this: [The embedded Tor client](tor-client.md).
 - Tor exit relays (how a clearnet hostname resolves): <https://community.torproject.org/relay/types-of-relays/#exit-relay>.

@@ -8,7 +8,7 @@
 
 ## How it works
 
-- **Resolution.** A wallet resolving `alice@goblin.st` fetches `https://goblin.st/.well-known/nostr.json?name=alice` (over [Tor](../pillars/nym-http.md), via a Tor-exit circuit to `goblin.st`'s clearnet host) and reads the pubkey (and any relay hints). A **reverse** lookup (name-by-pubkey) lets a wallet show the `name` for a key it only knows by `npub`.
+- **Resolution.** A wallet resolving `alice@goblin.st` fetches `https://goblin.st/.well-known/nostr.json?name=alice` (over [Tor](../pillars/tor-http.md), via a Tor-exit circuit to `goblin.st`'s clearnet host) and reads the pubkey (and any relay hints). A **reverse** lookup (name-by-pubkey) lets a wallet show the `name` for a key it only knows by `npub`.
 - **Registration is keypair-authenticated.** Claiming or releasing a name is a [NIP-98](https://nips.nostr.com/98)-signed HTTP request: you prove control of the key, no account or password. The server enforces **one active name per pubkey**, a set of **reserved names** (and domain-label reservations), look-alike/homograph folding, a name length cap, and a change **cooldown** to stop churn/abuse. NIP-98 events are single-use within a freshness window (replay protection).
 - **Transfer.** Rotating your key can carry your name with it: the old key authorizes a transfer to the new pubkey, so you keep `alice` after rotation.
 - **Federation.** The authority is just a host. **Settings → Identity → Name authority** lets you change it; bare names then resolve against your chosen domain, and foreign `name@otherdomain` identifiers resolve against *their* domain. Goblin only auto-trusts its own domain's names; others pass through the [unverified-key gate](send-request.md).

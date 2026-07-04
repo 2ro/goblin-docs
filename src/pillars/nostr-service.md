@@ -1,6 +1,6 @@
 # The NostrService relay thread
 
-> **Summary.** `NostrService` is the long-running, per-wallet engine that connects to relays (over [Tor](nym.md)), publishes payment messages, watches for incoming ones, and exposes send progress to the UI. Each open wallet has its own service and its own relay pool; there is no global connection.
+> **Summary.** `NostrService` is the long-running, per-wallet engine that connects to relays (over [Tor](tor.md)), publishes payment messages, watches for incoming ones, and exposes send progress to the UI. Each open wallet has its own service and its own relay pool; there is no global connection.
 
 ## Motivation
 
@@ -10,12 +10,12 @@ A wallet that pays by message needs a persistent worker: something that keeps re
 
 When a wallet opens with Nostr enabled, it spawns a `NostrService` on a dedicated tokio runtime. The service:
 
-- **Holds the decrypted keys** in memory only (never re-serialized to disk) and builds a `nostr-sdk` client whose relay transport is the [Tor websocket transport](nym-relay-transport.md), so every relay socket runs over Tor.
+- **Holds the decrypted keys** in memory only (never re-serialized to disk) and builds a `nostr-sdk` client whose relay transport is the [Tor websocket transport](tor-relay-transport.md), so every relay socket runs over Tor.
 - **Subscribes** for `kind 1059` gift wraps addressed to your key, with a **3-day lookback** (NIP-59 randomizes timestamps up to ~2 days into the past, so the window must be generous). Incoming events flow into the [ingest policy](nostr-ingest.md).
 - **Runs the send pipeline**: build rumor → seal → gift wrap → publish to *your* relays and the recipient's DM relays. Progress is published to the UI through an atomic `send_phase` (`IDLE → WORKING → SENT / FAILED`, plus `REQUEST_BLOCKED`), with a human-readable reason on failure.
 - **Rate-limits incoming senders** to blunt spam: a known **contact** may send ~30 events/hour, an **unknown** key ~10/hour.
 - **Re-verifies names** on a rolling basis (a few contacts per tick, on a periodic heartbeat) so a contact whose `name` was reassigned or released is caught.
-- **Reports relay liveness to the transport layer**: the service tells the [Tor client](nym-client.md) which circuit generation its relays are connected on, which both drives the honest "Connected over Tor" indicator and lets the transport rebuild a circuit that can't carry relay traffic.
+- **Reports relay liveness to the transport layer**: the service tells the [Tor client](tor-client.md) which circuit generation its relays are connected on, which both drives the honest "Connected over Tor" indicator and lets the transport rebuild a circuit that can't carry relay traffic.
 - **Serializes cancel vs. finalize** with a lock, so a user-initiated cancel can't race a concurrent auto-finalize of the same slate.
 - **Raises a system notification on Android** for the two events worth interrupting you for: a payment landing (`AutoReceive`) and someone requesting one (`SurfaceRequest`), each a one-shot, fail-open alert that fires once per event and never delays ingest itself. The persistent "Listening for payments" notification is separate: it just says the service is alive, and stays up the whole time a wallet is open.
 
@@ -29,7 +29,7 @@ In `goblin/src/nostr/client.rs`:
 - `send_phase` constants: `IDLE=0`, `WORKING=1`, `SENT=2`, `FAILED=3`, `REQUEST_BLOCKED=4`.
 - One-shots: `public_key()`, `nprofile()`, `nsec()`, `keys()`, `fetch_profile_blocking()`.
 - Lifecycle hooks: `Wallet::open` / `close` / `start_sync` in `goblin/src/wallet/wallet.rs`; jobs arrive as `WalletTask::Nostr*`.
-- Relay transport: the arti-backed [Tor websocket transport](nym-relay-transport.md) (`goblin/src/tor/`).
+- Relay transport: the arti-backed [Tor websocket transport](tor-relay-transport.md) (`goblin/src/tor/`).
 
 ## References
 

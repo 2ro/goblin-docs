@@ -4,7 +4,7 @@
 
 ## Motivation
 
-Goblin's transport used to be the Nym mixnet, linked in-process. That path broke for reasons outside our control — Nym is removing the free bandwidth tier the wallet floated on (it's testnet scaffolding written to expire at UTC midnight, with public gateways moving to a paid, NYM-token model) — so a money wallet could not keep standing on it. See [Tor in Goblin](nym.md#why-tor-and-not-a-mixnet).
+Goblin's transport used to be the Nym mixnet, linked in-process. That path broke for reasons outside our control — Nym is removing the free bandwidth tier the wallet floated on (it's testnet scaffolding written to expire at UTC midnight, with public gateways moving to a paid, NYM-token model) — so a money wallet could not keep standing on it. See [Tor in Goblin](tor.md#why-tor-and-not-a-mixnet).
 
 Rather than write our own Tor engine, Goblin **copies GRIM's**. GRIM's `src/tor/` is a small, four-file engine already running in production on desktop and Android, so Goblin inherits a known-good implementation instead of paying for one twice. Two technical choices come along verbatim because GRIM already settled them:
 
@@ -16,7 +16,7 @@ Rather than write our own Tor engine, Goblin **copies GRIM's**. GRIM's `src/tor/
 At startup `warm_up()` spawns a background task that bootstraps the Tor client on a dedicated runtime and keeps it alive for the life of the process:
 
 1. **One bootstrap.** Tor is a *single* bootstrap — dramatically simpler than the mixnet path it replaces, which needed two mixnet clients racing each other for bandwidth grants plus a sequencer just to get connected. The bootstrap overlaps with app launch, so it's mostly invisible; warming the circuit at launch hides even the first-send edge.
-2. **Exit dialing.** Once bootstrapped, the client opens Tor-exit circuits to the [relay](nym-exit.md) pool's clearnet hosts, the [name authority](../features/name-authority.md), and the [small background lookups](nym-http.md). Goblin only connects *out*; it never publishes a service of its own. (An earlier build also dialed a pinned relay `.onion` directly; that path was dropped in build134, see [The relay's Tor exit path](nym-exit.md).)
+2. **Exit dialing.** Once bootstrapped, the client opens Tor-exit circuits to the [relay](tor-exit.md) pool's clearnet hosts, the [name authority](../features/name-authority.md), and the [small background lookups](tor-http.md). Goblin only connects *out*; it never publishes a service of its own. (An earlier build also dialed a pinned relay `.onion` directly; that path was dropped in build134, see [The relay's Tor exit path](tor-exit.md).)
 3. **Readiness gate.** The UI refuses to show "Connected" until the transport is genuinely live: arti has bootstrapped, the Tor circuit is up, **and** a required relay is actually subscribed on it. A pipe that opened but can't yet deliver never latches the UI green.
 4. **Health and rebuild.** A live circuit is watched, and a circuit that dies is torn down and rebuilt automatically. The wallet's existing "the connection died, bring it back" logic and its background/foreground handling map cleanly onto Tor circuits.
 
@@ -43,7 +43,7 @@ In `goblin/src/tor/` (copied from GRIM's `grim/src/tor/`, four files: `config.rs
 
 ## References
 
-- Exit-side name resolution and the (absence of a) DNS layer: [Name resolution under Tor](nym-dns.md).
-- Consumers: [Relay transport](nym-relay-transport.md), [HTTP](nym-http.md).
-- The money-path destination this client dials: [The relay's Tor exit path](nym-exit.md).
+- Exit-side name resolution and the (absence of a) DNS layer: [Name resolution under Tor](tor-dns.md).
+- Consumers: [Relay transport](tor-relay-transport.md), [HTTP](tor-http.md).
+- The money-path destination this client dials: [The relay's Tor exit path](tor-exit.md).
 - arti (Tor in Rust): <https://tpo.pages.torproject.net/core/arti/>.

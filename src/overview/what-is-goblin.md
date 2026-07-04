@@ -24,7 +24,7 @@ Three things, each documented in depth in these pages:
 
 - **Nostr as the courier.** The slatepack is wrapped as an [encrypted Nostr message](../pillars/nostr.md) and delivered through public relays. Relays buffer messages for wallets that are offline, so the exchange is asynchronous. Relays only ever see ciphertext, never the amount, the sender, or the recipient. Usernames look like `alice`, backed by the [NIP-05](../features/name-authority.md) standard.
 
-- **Tor for network privacy.** Every connection Goblin makes (relay sockets *and* every HTTP request for name lookups, price, avatars) is tunneled through [Tor](../pillars/nym.md), embedded right inside the app, out through a Tor exit to each destination's ordinary clearnet host. The relay, and anyone watching the network, sees a Tor exit address, never your phone's IP. That's Tor's one narrow job; the [relay and the Nostr protocol](../pillars/nostr.md) hide the rest (the message content, the sender, and the send/receive timing). **Nothing Goblin sends touches the clear net**, except the Grin node connection, which carries only public chain data and is deliberately kept direct.
+- **Tor for network privacy.** Every connection Goblin makes (relay sockets *and* every HTTP request for name lookups, price, avatars) is tunneled through [Tor](../pillars/tor.md), embedded right inside the app, out through a Tor exit to each destination's ordinary clearnet host. The relay, and anyone watching the network, sees a Tor exit address, never your phone's IP. That's Tor's one narrow job; the [relay and the Nostr protocol](../pillars/nostr.md) hide the rest (the message content, the sender, and the send/receive timing). **Nothing Goblin sends touches the clear net**, except the Grin node connection, which carries only public chain data and is deliberately kept direct.
 
 ## What stays the same as Grin
 
@@ -34,7 +34,7 @@ Goblin is still a self-custodial Grin wallet. Your funds are controlled by your 
 
 - [Architecture: the three pillars](architecture.md): how the pieces connect.
 - [The end-to-end payment flow](../features/payment-flow.md): follow one payment from tap to chain.
-- [Nostr in Goblin](../pillars/nostr.md) and [Tor in Goblin](../pillars/nym.md): the layers that make it private.
+- [Nostr in Goblin](../pillars/nostr.md) and [Tor in Goblin](../pillars/tor.md): the layers that make it private.
 
 ## References
 
