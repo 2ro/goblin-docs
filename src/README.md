@@ -16,6 +16,8 @@ Under the hood Goblin stands on three pillars:
 | **[Nostr](pillars/nostr.md)** | The messaging layer. Usernames, encrypted payment messages (gift-wrapped slatepacks), and offline delivery, all without running our own bespoke server. |
 | **[Tor](pillars/tor.md)** | The transport. All relay traffic and every HTTP request rides Tor, embedded in-process, out through a [Tor exit](pillars/tor-exit.md) to each destination's ordinary clearnet host. Only the public Grin chain connection is direct, by design. |
 
+Goblin is also one piece of a larger Grin-native stack: the [GoblinPay](https://docs.floonet.dev/goblinpay/) till, the [Magick Market](https://magick.market) marketplace, and [Floonet](https://docs.floonet.dev) relays all speak the same wallet-to-wallet payment rail. For a tour of how they fit together, and how to self-host them, see [goblin.st/use-cases](https://goblin.st/use-cases).
+
 ## How to read these docs
 
 The docs are organized from the outside in:

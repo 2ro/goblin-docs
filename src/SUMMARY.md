@@ -42,6 +42,7 @@
 
 # Subsystems
 
+- [Balance, node health & fiat rate](subsystems/balance.md)
 - [Theme: light / dark / yellow](subsystems/theme.md)
 - [Avatars & identicons](subsystems/avatars.md)
 - [QR & camera](subsystems/qr-camera.md)

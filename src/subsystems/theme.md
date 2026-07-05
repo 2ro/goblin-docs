@@ -14,6 +14,16 @@ The rule for contributors: any new on-card text must use the `surface_text*` tok
 
 > The docs site you're reading reuses this palette (Geist type, `#FFD60A` accent on `#0E0E0C` ink) so it feels like the app.
 
+## The Appearance settings section
+
+The theme picker lives in an **Appearance** section of Settings that gathers the look-and-feel choices in one place:
+
+- **Theme.** Light, Dark, or Yellow, as above.
+- **Language.** A selector for the wallet's display language; Goblin auto-detects your system language on first run and this lets you override it. See [Localization](localization.md).
+- **Hide amounts.** A privacy toggle for received-payment amounts in notifications: turn it on and an incoming-payment notification tells you a payment arrived without printing the figure on your lock screen, so a glance over your shoulder reveals nothing. It affects the notification only, not the balance you see inside the app.
+
+When an app update is available, an **update button** appears near the profile panel. Tapping it opens the update dialog, which carries Goblin's own branding and the changelog for the new version, along with links to the source on [github.com/2ro/goblin](https://github.com/2ro/goblin), the community on [t.me/goblinfamily](https://t.me/goblinfamily), and these docs at [docs.goblin.st](https://docs.goblin.st).
+
 ## Reference
 
 - `goblin/src/gui/theme.rs`: `ThemeKind` (`Light` / `Dark` / `Yellow`), `ThemeTokens`, the `LIGHT` / `DARK` / `YELLOW` palettes, the avatar pairs, and `theme::tokens()` / `ink_for()` helpers.
