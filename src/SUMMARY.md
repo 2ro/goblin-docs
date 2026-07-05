@@ -35,6 +35,7 @@
 
 - [The end-to-end payment flow](features/payment-flow.md)
 - [Send & request, recipient search](features/send-request.md)
+- [News on Home](features/news.md)
 - [The NIP-05 name authority](features/name-authority.md)
 - [Onboarding](features/onboarding.md)
 - [Cancel & decline](features/cancel-decline.md)
