@@ -49,6 +49,12 @@ Every message above rides [Tor](../pillars/tor.md), and the wraps themselves are
 
 A *request* runs the same machinery with the roles inverted: you issue an Invoice-1 ("please pay me `5 ツ`"), the payer's wallet **surfaces it for explicit approval** (never auto-paid; see [ingest policy](../pillars/nostr-ingest.md)), and on approval the Invoice-2/finalize legs complete. Declining or cancelling sends a [void control message](cancel-decline.md).
 
+## Payment proofs (on request)
+
+Payments can include a native Grin payment proof when the payment request asks for one, off by default, shown on the review screen.
+
+That is the whole rule. An ordinary person-to-person send carries no proof and is byte-identical to a send with the feature never involved. Proof mode is turned on for a single transaction only when the payment link that opened the review screen asks for it, by carrying the relevant parameters (a proof address, and optional order and notify hints). When it is on, the review screen shows a plain **Payment proof: Included** row so you can see it before you hold to send. The parsing is fail-closed: if any of those parameters is missing or malformed, the wallet drops proof mode and falls back to a normal proof-free payment rather than guessing. Requests you issue are unaffected; only a send whose link explicitly asks for a proof ever produces one.
+
 ## Where it's wired
 
 - UI dispatch: `goblin/src/gui/views/goblin/send.rs` → `WalletTask::NostrSend` / `NostrRequest` / `NostrPayRequest`.

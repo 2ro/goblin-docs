@@ -6,7 +6,7 @@
 
 When the wallet has cached a news post, Home renders a card with the article's **title** and a short **summary**, spanning the full content width so it reads as a band rather than a chip. Any `http(s)` link in the summary is tappable and opens in the browser. No markdown is rendered in the panel, and there is no empty state: with no post cached, the card simply does not appear.
 
-The panel is **latest-only**. It shows exactly one article, the most recent one from the news key, and an edit republished under the same identifier replaces it in place rather than stacking a second card.
+The panel is **latest-only** and **language-aware**. It shows exactly one article: the most recent one from the news key **in the wallet's own language**, falling back to the newest English article when nothing is published in that language. An edit republished under the same identifier replaces it in place rather than stacking a second card.
 
 The card is fetched from the wallet's own relay set (which includes the money-path relay `relay.floonet.dev`) on the same subscription machinery as everything else, so it arrives over [Tor](../pillars/tor.md) like the rest of the wallet's traffic. The wallet guards both the **kind** (30023) and the **author** (the news key), so a stray event on the news subscription cannot spoof the panel.
 
@@ -14,7 +14,7 @@ The card is fetched from the wallet's own relay set (which includes the money-pa
 
 - The news publisher is a fixed key compiled into the wallet (`NEWS_NPUB` in `goblin/src/nostr/client.rs`), currently `npub15gsytqvs5c78u83yv2agl4twjkk6qgem7gtwe2agu7s90tkelxys0xxely`.
 - The wallet subscribes to that key's `kind 30023` (NIP-23 long-form) events on its relay set under a stable subscription id (`goblin-news`), so a reconnect replaces the subscription rather than piling up duplicates.
-- Each post is cached with its `d` identifier, `created_at`, `title`, and a summary. The store dedupes **newest-per-`d`**, and the panel reads the single latest item (`news_latest`). The summary is the `summary` tag when present, otherwise the first couple of lines of the article body flattened to plain text and capped to about two lines.
+- Each post is cached with its `d` identifier, `created_at`, `title`, a summary, and a detected **language**. The store dedupes **newest-per-`d`**, and the panel (`news_latest`) selects the newest article whose language matches the wallet's locale (folded to its ISO-639-1 primary, so `zh-CN` matches `zh`), then falls back to the newest English article if there is none. A post's language comes from its `["l", …]` tag if present, otherwise a trailing `[xx]` marker in the title, otherwise it is treated as English. The summary is the `summary` tag when present, otherwise the first couple of lines of the article body flattened to plain text and capped to about two lines.
 
 On desktop, Home now lays out to the full window width, so the news band and the rest of the Home content use the available space instead of a fixed narrow column.
 
