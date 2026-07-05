@@ -28,6 +28,16 @@ The news card is just a standard Nostr long-form article, so publishing is ordin
 4. **Put any link in the summary.** `http(s)` URLs in the summary are tappable in the wallet; links in the article body are not surfaced in the card.
 5. **To update or correct a post, republish under the same `d` identifier.** Because the panel is latest-only and dedupes per `d`, an edit-in-place replaces the card instead of adding another. A brand-new `d` (with a newer timestamp) simply becomes the new latest.
 
+### Publishing in more than one language
+
+Because the panel is language-aware, publish **one article per language** and let each wallet pick its own. The convention:
+
+- **Mark the language.** The preferred way is a `["l", "<code>", "ISO-639-1"]` tag (a clean title, machine-read language). Alternatively, append a `[xx]` marker to the title (for example `Welcome [de]`). **No tag and no marker means English.**
+- **One `d` per language.** Use the base slug for English and `slug-<lang>` for every other language (for example `welcome` and `welcome-de`). That way an edit to the German article replaces the German card in place and never collides with the English one.
+- **Date in ISO 8601.** Where a title carries a date, write it as `YYYY-MM-DD`.
+
+A wallet then shows the newest article in its own language, falling back to the newest English article when that language has none. Publishing only an English article is fine; every wallet will show it.
+
 ### Caveat: verify it landed
 
 Some Nostr clients (Jumble is one) can silently fail to deliver an event to a relay you just added to their relay list, reporting success while the write never reaches the relay. After publishing, **verify the article is actually on `relay.floonet.dev`** (query the relay for the news key's `kind 30023`), and republish if it did not land.
