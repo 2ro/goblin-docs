@@ -1,6 +1,6 @@
 # Identity (NIP-06 / NIP-49)
 
-> **Summary.** Each wallet has a Nostr keypair that is its payment identity. The secret key is stored encrypted at rest ([NIP-49](https://nips.nostr.com/49) `ncryptsec`, owner-only file permissions). Crucially, this key is **separate from your Grin seed**, so you can rotate your identity to stay unlinkable without ever touching your funds.
+> **Summary.** Each wallet has a Nostr keypair that is its payment identity. The secret key is stored encrypted at rest ([NIP-49](https://nips.nostr.com/49) `ncryptsec`, owner-only file permissions). Crucially, this key is **separate from your Grin seed**, so you can rotate your identity to stay unlinkable without ever touching your funds. A wallet can also hold several identities at once, all listening together; see [Multiple identities](../features/identities.md).
 
 ## Motivation
 
