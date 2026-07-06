@@ -1,6 +1,6 @@
 # The NIP-05 name authority
 
-> **Summary.** Usernames like `alice@goblin.st` come from a small, self-hostable service (`goblin-nip05d`) that implements [NIP-05](https://nips.nostr.com/5) resolution and [NIP-98](https://nips.nostr.com/98)-authenticated registration. Goblin ships with `goblin.st` as the default authority, but it's **configurable**: anyone can run their own and Goblin can point at it (federation).
+> **Summary.** Usernames like `alice@goblin.st` come from a small, self-hostable service (`goblin-nip05d`) that implements [NIP-05](https://nips.nostr.com/5) resolution and [NIP-98](https://nips.nostr.com/98)-authenticated registration. Goblin ships with `goblin.st` as the default authority, but it's **configurable**: anyone can run their own and Goblin can point at it (federation). The standalone `goblin-nip05d` is the original minimal edition; the same name service is now bundled into the Floonet relay packages, which run it alongside a relay or on its own (see [Run a name authority](../self-hosting/name-authority.md)).
 
 ## Motivation
 

@@ -2,6 +2,8 @@
 
 > **Summary.** `goblin-nip05d` is a small, self-hostable Axum + SQLite service that issues `name@yourdomain` identities and resolves them via NIP-05, with NIP-98-authenticated self-service registration. Running your own makes you an independent issuer; `goblin.st` is just one operator.
 
+> **Which package to use.** Standalone `goblin-nip05d` is the original minimal edition, kept for anyone who wants names with no relay. The same name service is now **bundled into the Floonet relay packages** (floonet-strfry and floonet-rs), which can run it alongside the relay, standalone, or not at all, chosen in the relay setup, and which is where the authority now gets its ongoing work (paid names, name transfers, co-location on the relay domain). For a new deployment prefer the relay package; see the Floonet relay docs at [docs.floonet.dev](https://docs.floonet.dev). The rest of this page covers the standalone service.
+
 ## What it is
 
 A single binary that:
