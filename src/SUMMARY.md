@@ -40,6 +40,7 @@
 - [Name marketplace](features/name-marketplace.md)
 - [Multiple identities](features/identities.md)
 - [Sign in with Goblin](features/sign-in.md)
+- [Authorize Sessions (trust a site)](features/authorize-sessions.md)
 - [Onboarding](features/onboarding.md)
 - [Cancel & decline](features/cancel-decline.md)
 

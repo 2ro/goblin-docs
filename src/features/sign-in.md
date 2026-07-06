@@ -14,7 +14,7 @@ Signing in to a website with a Nostr identity usually means handing your key to 
 
 **What gets signed.** The signature covers a one-time challenge from the site and nothing else. It proves to the site that you control the identity's key, right now, for this login. It is not a session key, not a delegation, and it cannot be replayed: each request is single-use and a pending approval expires after about two minutes if you leave it untouched. Only one login request is considered at a time; while one is on screen, new ones are ignored.
 
-**What the site gets, and does not get.** The key never leaves the wallet. The site receives a signature, not a secret, so it cannot act as you. The resulting session is view-only where publishing is concerned: anything that would publish as you (listing a name for sale, signing an offer) still asks for your key separately at that moment.
+**What the site gets, and does not get.** The key never leaves the wallet. The site receives a signature, not a secret, so it cannot act as you. A plain login grants no signing power: anything that would publish as you (listing a name for sale, signing an offer) still asks for your key separately at that moment. If you want a site to sign low-risk actions for you without asking each time, that is a separate, explicit step, and money always still asks. See [Authorize Sessions](authorize-sessions.md).
 
 **Declining.** Cancel the modal, or simply let it expire, and nothing is sent. The site's login attempt just fails.
 
