@@ -39,6 +39,7 @@
 - [The NIP-05 name authority](features/name-authority.md)
 - [Name marketplace](features/name-marketplace.md)
 - [Multiple identities](features/identities.md)
+- [Sign in with Goblin](features/sign-in.md)
 - [Onboarding](features/onboarding.md)
 - [Cancel & decline](features/cancel-decline.md)
 

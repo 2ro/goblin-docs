@@ -24,6 +24,8 @@ The flow (`SendFlow`) moves through stages: **Recipient → Amount → Review �
 
 **Requests** reuse the **Pay/Request** screen: choose *Request* instead of *Pay* to issue an Invoice-1 to a contact (or broadcast a "requesting X ツ" code). Incoming requests appear as approve/decline cards; see [Cancel & decline](cancel-decline.md).
 
+**Batch invoices.** A payment link or QR can ask the wallet to issue several invoices at once, up to 20 in one link. Instead of a prompt per invoice, the wallet shows a single approval that says how many invoices are being requested and for how much in total; one confirmation issues the whole batch. Anything a batch link gets wrong (or a count the wallet cannot honour directly) quietly degrades to the ordinary single-invoice flow.
+
 The **Activity** feed and home "recent contacts" strip are built by joining the GRIM transaction log with nostr `tx_meta` (`goblin/src/gui/views/goblin/data.rs`). Each recent-activity row reads left-to-right the way a message list does: the note or counterparty on the left, ellipsised when it's long, with the amount and a relative time stacked on the right. Opening a payment's detail view shows the fuller picture, down to the seconds on its timestamp.
 
 <div class="shot-todo"><strong>Screenshots:</strong> (1) recipient search with candidate cards, (2) numpad amount, (3) review hero with hold-to-send, (4) Activity feed, dark, 390×844.</div>

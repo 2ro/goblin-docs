@@ -14,7 +14,7 @@ One person is often several "yous". A seller on [magick.market](https://magick.m
 
 **Instant switching.** Switching just changes which identity you present and send as. No password, no syncing, no waiting: the keys were already unlocked when the wallet opened, so the switch is a pointer move.
 
-**Adding an identity.** One add flow. By default it generates a brand-new anonymous key, unlinkable to your seed and to your other identities. A single toggle switches to importing instead: an identity `.backup` file (name and history included) or a pasted `nsec`.
+**Adding an identity.** One add sheet, two buttons. **Generate** creates a brand-new anonymous key, unlinkable to your seed and to your other identities. **Import** brings an existing identity in instead: an identity `.backup` file (name and history included) or a pasted `nsec`. Cancel sits beneath both.
 
 **The manage sheet.** Each identity in the switcher has a pencil on its row that opens a manage sheet for that one identity; tagging and deleting live there. The sheet is a focused modal: while it is open the list behind it is locked, so a stray tap can't switch you or touch a different identity.
 
@@ -38,4 +38,5 @@ One person is often several "yous". A seller on [magick.market](https://magick.m
 - How a single identity is stored and encrypted: [Identity (NIP-06 / NIP-49)](../pillars/nostr-identity.md).
 - Claiming a username for an identity: [Name authority](name-authority.md).
 - Selling an identity's name, or buying one for a name-less identity: [Name marketplace](name-marketplace.md).
+- Logging in to a site as one of your identities: [Sign in with Goblin](sign-in.md).
 - Importing an identity at first run: [Onboarding](onboarding.md).
