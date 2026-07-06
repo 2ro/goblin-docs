@@ -10,7 +10,11 @@ A balance is the one number a payments app must never lie about. Two moments mak
 
 ### Switching nodes applies live
 
-The Grin node is chosen in **Settings → Advanced**. Picking a different node applies immediately, with no restart: the wallet re-points at the new node and the balance re-derives from it. There is no stale figure left over from the old node.
+The Grin node is chosen in **Settings → Advanced**. Picking a different node applies immediately, with no restart: the wallet re-points at the new node and the balance re-derives from it. There is no stale figure left over from the old node. The **Integrated Node** settings (for running a Grin node inside the app instead of using a public one) live under **Settings → Advanced** too.
+
+### Minimum confirmations
+
+How many confirmations a payment needs before the wallet counts it as settled is an editable setting, just below the node section in **Settings → Advanced**. The default is **10**. A higher number means waiting longer but with more certainty that the chain won't reorganise under the payment; only lower it if you understand that trade-off.
 
 ### Honest balance states
 

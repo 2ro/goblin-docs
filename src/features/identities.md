@@ -14,26 +14,24 @@ One person is often several "yous". A seller on [magick.market](https://magick.m
 
 **Instant switching.** Switching just changes which identity you present and send as. No password, no syncing, no waiting: the keys were already unlocked when the wallet opened, so the switch is a pointer move.
 
-**Adding an identity.** Three ways in, matching the import options elsewhere in the app:
+**Adding an identity.** One add flow. By default it generates a brand-new anonymous key, unlinkable to your seed and to your other identities. A single toggle switches to importing instead: an identity `.backup` file (name and history included) or a pasted `nsec`.
 
-- **Generate**: a brand-new anonymous key, unlinkable to your seed and to your other identities.
-- **Import a backup**: restore an identity `.backup` file (name and history included).
-- **Paste an `nsec`**: adopt an existing key directly.
+**The manage sheet.** Each identity in the switcher has a pencil on its row that opens a manage sheet for that one identity; tagging and deleting live there. The sheet is a focused modal: while it is open the list behind it is locked, so a stray tap can't switch you or touch a different identity.
 
-**Private tags.** You can rename any identity with a local tag ("shop", "friends"). The tag lives only on your device and is never published anywhere, so it can be as honest as you like.
+**Private tags.** From the manage sheet you can name any identity with a device-only label ("shop", "friends"). The tag is never published anywhere, so it can be as honest as you like, and it rides inside the encrypted identity backup, so restoring the backup brings the label back too. Wherever identities are listed, the private tag is shown first, then the claimed name, then the npub.
 
-**Deleting.** Delete is double-gated: a confirmation step, then your wallet password, with a warning to back up first. Deleting an identity you have not backed up is unrecoverable; the key is gone for good. Your funds are not at risk either way, because they live on the seed, not the identity.
+**Deleting.** Delete sits at the bottom of the manage sheet and is double-gated: first a warning that the identity will be permanently removed, with a reminder to back it up first, then your wallet password. Deleting an identity you have not backed up is unrecoverable; the key is gone for good. Two guard rails: you cannot delete your last identity, and deleting the active one switches you to another identity first. Your funds are not at risk either way, because they live on the seed, not the identity.
 
 **Security model, in plain words.** Each identity's key is encrypted on your device with your wallet password, exactly like the single identity always was. Keys are only unlocked in memory while the wallet is open; close the wallet and every identity locks again.
 
-<div class="shot-todo"><strong>Screenshots:</strong> Identity switcher list with tags, Add identity (generate / import), Delete confirmation with backup warning, dark, 390×844.</div>
+<div class="shot-todo"><strong>Screenshots:</strong> Identity switcher list with tags, Add identity (generate, with import toggle), Manage sheet, Delete warning with backup reminder, dark, 390×844.</div>
 
 ## Reference
 
 - The held-identity index (which identities the wallet holds, display order, which is active; carries no secrets): `HeldIdentities` / `HeldEntry` in `goblin/src/nostr/identities.rs`, persisted as `nostr/identities.json` with a cap of `MAX_IDENTITIES = 8`. Pre-feature wallets migrate automatically: the existing `identity.json` is adopted as identity #1 and never rewritten, so an older build still opens the wallet cleanly.
 - Each held identity is a full `NostrIdentity` with its own NIP-49 `ncryptsec` (`identities/<hex>/identity.json`); the local tag is the `private_tag` field in `goblin/src/nostr/identity.rs`.
 - All-at-once listening: the service keeps every held identity of the open wallet live for the session and names all their pubkeys in a single gift-wrap subscription; an incoming wrap is opened by whichever held key it was addressed to. See `goblin/src/nostr/client.rs`.
-- Switcher, add, tag, and delete UI: `IdentitySwitchState` in `goblin/src/gui/views/goblin/mod.rs` (step-1 `confirm_delete`, then a password-gated pending action).
+- Switcher, add, and manage-sheet (tag / delete) UI: `IdentitySwitchState` in `goblin/src/gui/views/goblin/mod.rs` (step-1 `confirm_delete`, then a password-gated pending action).
 
 ## References
 

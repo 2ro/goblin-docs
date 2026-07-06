@@ -11,7 +11,7 @@ Writing a correct cryptocurrency wallet is hard and security-critical; writing a
 GRIM bundles the Grin node and wallet libraries as path dependencies and drives them from an egui UI. Goblin inherits all of that:
 
 - **Seed & keys.** BIP-39 mnemonic (12–24 words), the wallet master seed, and Grin's output/rangeproof key derivation: all GRIM/Grin code. Your Grin *funds* are controlled by this seed. (Goblin's *nostr* identity is deliberately separate; see [Identity](nostr-identity.md).)
-- **Integrated node + sync.** GRIM can run a full Grin node or talk to an external one, track the chain tip, and scan for your outputs. Goblin exposes this under **Settings → Node** but does not change it.
+- **Integrated node + sync.** GRIM can run a full Grin node or talk to an external one, track the chain tip, and scan for your outputs. Goblin exposes this under **Settings → Advanced** but does not change it.
 - **The slatepack transaction machine.** Grin's interactive flow (Standard (send) and Invoice (request), each a two-step slate exchange) and the slatepack armor encoding live in the Grin wallet library. Goblin's entire job is to *carry* these slatepacks; it never alters how they're built or validated.
 - **The egui shell & platform layer.** Window, fonts, Android/desktop entry points, camera, and storage abstractions come from GRIM.
 

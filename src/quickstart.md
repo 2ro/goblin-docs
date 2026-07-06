@@ -54,5 +54,6 @@ Tap **Activity** to see everything you've sent and received, and whether each on
 - **Payments are private by default.** They travel encrypted, and the network hides who paid whom. [Here's how](overview/architecture.md).
 - **Connecting is quick.** Goblin reaches its payment network over **Tor**, running right inside the app, and the money path connects in a couple of seconds, even right after you open the app. Payments usually complete in seconds. The very first connection after you open the app can take a moment while Tor warms up; that's normal and it sorts itself out.
 - **Paying someone who isn't on Goblin?** Use **Settings → Wallet → Slatepacks** for the by-hand method.
+- **On Android, the back button won't dump you out of the app by accident.** On the wallet home screen, press back twice to return to the wallet switcher; the first press shows a "Press back again to switch wallets" hint. The confirmation to exit the app lives at the wallet switcher.
 
 Want the full picture of how it all works? Start with [What is Goblin?](overview/what-is-goblin.md)

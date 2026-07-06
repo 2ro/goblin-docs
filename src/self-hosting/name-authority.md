@@ -39,6 +39,8 @@ sudo systemctl enable --now goblin-nip05d
 # front it with TLS + X-Real-IP per deploy/nginx.conf.example
 ```
 
+**First-run setup wizard.** You don't have to write the configuration by hand. Start `goblin-nip05d` interactively with no configuration and it launches a short guided setup: it asks for the essentials, suggests a sensible default for each answer, and writes the config for you. With a config file or environment variables already present it starts headless exactly as before, so scripted, Docker, and systemd deployments are unaffected.
+
 Then point a wallet at it: **Settings → Identity → Name authority → `yourdomain`**.
 
 **Optional: name sales.** The [name marketplace](../features/name-marketplace.md) is **off by default** and per-authority: enable it with `GOBLIN_ALLOW_TRANSFERS=true` plus `GOBLIN_GRIN_NODE_URL` pointing at a Grin node's foreign API (read-only chain access, used only to confirm payment kernels; the authority never runs a wallet and never holds funds).
