@@ -39,4 +39,5 @@ One person is often several "yous". A seller on [magick.market](https://magick.m
 
 - How a single identity is stored and encrypted: [Identity (NIP-06 / NIP-49)](../pillars/nostr-identity.md).
 - Claiming a username for an identity: [Name authority](name-authority.md).
+- Selling an identity's name, or buying one for a name-less identity: [Name marketplace](name-marketplace.md).
 - Importing an identity at first run: [Onboarding](onboarding.md).

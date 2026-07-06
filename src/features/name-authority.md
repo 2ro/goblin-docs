@@ -10,7 +10,7 @@
 
 - **Resolution.** A wallet resolving `alice@goblin.st` fetches `https://goblin.st/.well-known/nostr.json?name=alice` (over [Tor](../pillars/tor-http.md), via a Tor-exit circuit to `goblin.st`'s clearnet host) and reads the pubkey (and any relay hints). A **reverse** lookup (name-by-pubkey) lets a wallet show the `name` for a key it only knows by `npub`.
 - **Registration is keypair-authenticated.** Claiming or releasing a name is a [NIP-98](https://nips.nostr.com/98)-signed HTTP request: you prove control of the key, no account or password. The server enforces **one active name per pubkey**, a set of **reserved names** (and domain-label reservations), look-alike/homograph folding, a name length cap, and a change **cooldown** to stop churn/abuse. NIP-98 events are single-use within a freshness window (replay protection).
-- **Transfer.** Rotating your key can carry your name with it: the old key authorizes a transfer to the new pubkey, so you keep `alice` after rotation.
+- **Transfer.** Rotating your key can carry your name with it: the old key authorizes a transfer to the new pubkey, so you keep `alice` after rotation. Selling a name to *someone else* is a separate, payment-verified flow: see [Name marketplace](name-marketplace.md).
 - **Federation.** The authority is just a host. **Settings → Identity → Name authority** lets you change it; bare names then resolve against your chosen domain, and foreign `name@otherdomain` identifiers resolve against *their* domain. Goblin only auto-trusts its own domain's names; others pass through the [unverified-key gate](send-request.md).
 
 <div class="shot-todo"><strong>Screenshot:</strong> Settings → Identity → Name authority row (value <code>goblin.st</code>) and the claim-username panel, dark.</div>
@@ -25,4 +25,5 @@
 
 - NIP-05 (DNS-based names): <https://nips.nostr.com/5>.
 - NIP-98 (HTTP auth): <https://nips.nostr.com/98>.
+- Selling and buying names: [Name marketplace](name-marketplace.md).
 - Self-hosting: [Run a name authority](../self-hosting/name-authority.md).

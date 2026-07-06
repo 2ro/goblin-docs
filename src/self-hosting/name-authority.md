@@ -41,6 +41,8 @@ sudo systemctl enable --now goblin-nip05d
 
 Then point a wallet at it: **Settings → Identity → Name authority → `yourdomain`**.
 
+**Optional: name sales.** The [name marketplace](../features/name-marketplace.md) is **off by default** and per-authority: enable it with `GOBLIN_ALLOW_TRANSFERS=true` plus `GOBLIN_GRIN_NODE_URL` pointing at a Grin node's foreign API (read-only chain access, used only to confirm payment kernels; the authority never runs a wallet and never holds funds).
+
 ## Reference
 
 - Crate: `goblin-nip05d/` (Axum + SQLite). README documents endpoints, env, and the security model in full.

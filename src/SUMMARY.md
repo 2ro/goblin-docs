@@ -37,6 +37,7 @@
 - [Send & request, recipient search](features/send-request.md)
 - [News on Home](features/news.md)
 - [The NIP-05 name authority](features/name-authority.md)
+- [Name marketplace](features/name-marketplace.md)
 - [Multiple identities](features/identities.md)
 - [Onboarding](features/onboarding.md)
 - [Cancel & decline](features/cancel-decline.md)
