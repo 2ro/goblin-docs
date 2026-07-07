@@ -12,11 +12,11 @@ The flow (`OnboardingContent`) steps through:
 
 1. **Intro**: what Goblin is (private, pay-by-username). Goblin connects to a default Grin node automatically, so there's no node step to wade through; you can change the node later in **Settings → Advanced**.
 2. **Wallet setup**: name + password, or choose **restore**.
-3. **Recovery phrase**: generate (12–24 words) or import. Import supports paste and a **SeedQR** scan. This step uses GRIM's `MnemonicSetup` word grid and validation.
+3. **Recovery phrase**: generate (12–24 words) or import. Import supports paste, a **SeedQR** scan, and (Build 158) a **Choose a .backup file** picker: point it at a full wallet `.backup`, unlock it with the wallet password, and it fills the 24-word grid for you. This step uses GRIM's `MnemonicSetup` word grid and validation.
 4. **Confirm words**: verify the phrase by re-entering it.
 5. **Identity**: optionally claim a `username` (reusing the [name-authority](name-authority.md) claim flow) or import an existing identity (`nsec` / backup). A prominent **Skip** keeps you anonymous.
 
-On completion the new wallet is opened and its [NostrService](../pillars/nostr-service.md) starts. Restoring from seed gives you a *fresh* random nostr identity by default; you bring your old one back via **Import**.
+On completion the new wallet is opened and its [NostrService](../pillars/nostr-service.md) starts. Restoring from a bare seed phrase gives you a *fresh* random nostr identity by default; you bring an old one back via **Import**. Restoring from a full `.backup` file instead brings **every** identity it held back automatically once the wallet opens (a *"Restoring your identities…"* card shows the progress), with the previously active identity re-selected.
 
 <div class="shot-todo"><strong>Screenshots:</strong> Intro, Recovery-phrase grid, Claim-username step, dark, 390×844.</div>
 

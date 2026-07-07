@@ -30,7 +30,7 @@ While it is on:
 - **Every avatar becomes one uniform tile.** In place of each counterparty's picture, gradient, or initial, the wallet draws a single identical tile: a solid Goblin-yellow (`#FED60E`) circle with the Goblin mark inked dark on top. It is byte-identical for every identity, so no per-user colour, image, or letter can leak who a row belongs to.
 - **The Recent strip is anonymized like the rest.** Every avatar in the Recent strip becomes the same censored tile and every name is dotted. Tapping a tile still opens the full detail.
 
-The amount dots are always the same fixed count and are never digit-matched to the real value, so a censored row cannot leak an amount's size. Anonymous mode is purely a display choice: it does not touch the balance the wallet actually holds, the history it stores, or anything it sends.
+The amount dots are always the same fixed count and are never digit-matched to the real value, so a censored row cannot leak an amount's size. The uniform yellow tile and the amount dots exist **only** while anonymous mode is on: turn it off and every avatar, including your own, returns to its normal [colour gradient](../subsystems/avatars.md) and every figure to its real value (Build 158 made this scoping explicit). Anonymous mode is purely a display choice: it does not touch the balance the wallet actually holds, the history it stores, or anything it sends.
 
 <div class="shot-todo"><strong>Screenshots:</strong> Settings → Advanced Privacy (Notifications toggles + Anonymous mode); Home with the balance censored to dots; the activity list with dotted rows and the uniform yellow tiles, dark, 390×844.</div>
 

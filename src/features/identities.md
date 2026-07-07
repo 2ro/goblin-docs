@@ -20,6 +20,8 @@ One person is often several "yous". A seller on [magick.market](https://magick.m
 
 **Private tags.** From the manage sheet you can name any identity with a device-only label ("shop", "friends"). The tag is never published anywhere, so it can be as honest as you like, and it rides inside the encrypted identity backup, so restoring the backup brings the label back too. Wherever identities are listed, the private tag is shown first, then the claimed name, then the npub.
 
+**One backup covers them all.** As of Build 158 the wallet's full backup (Settings → Advanced, under *Advanced nostr settings*, captioned *"Contains your wallet and all identities."*) seals your Grin seed and **every** held identity into one encrypted `.backup` file, with the active one marked, so a single restore brings the whole set back at once. See [Identity backup & restore](../pillars/nostr-identity.md). (Importing a single-identity `.backup` from the add sheet, above, still works for bringing in just one.)
+
 **Deleting.** Delete sits at the bottom of the manage sheet and is double-gated: first a warning that the identity will be permanently removed, with a reminder to back it up first, then your wallet password. Deleting an identity you have not backed up is unrecoverable; the key is gone for good. Two guard rails: you cannot delete your last identity, and deleting the active one switches you to another identity first. Your funds are not at risk either way, because they live on the seed, not the identity.
 
 **Security model, in plain words.** Each identity's key is encrypted on your device with your wallet password, exactly like the single identity always was. Keys are only unlocked in memory while the wallet is open; close the wallet and every identity locks again.
