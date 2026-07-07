@@ -19,9 +19,9 @@ There are three ways an identity comes to exist (`IdentitySource`):
 - **Imported**: you paste an `nsec` or restore an encrypted backup file, adopting an existing identity (name and history included).
 - **Derived**: a [NIP-06](https://nips.nostr.com/06) seed-derived key. Kept for legacy wallets; new wallets use Random.
 
-**Rotation** generates (or imports) a new key, releases your old name from the [authority](../features/name-authority.md), records the old `npub` in `prev_npubs`, and restarts the relay service under the new key, all without re-seeding, so your Grin balance is untouched.
+**Starting a fresh, unlinkable key** does not need a dedicated rotate action, and the old one was removed: it was only a random add-and-switch that also released your name, adding nothing over the identity switcher. To present as a new independent key you add an identity (a random `Keys::generate` key, unlinkable to your seed and your other identities) and switch to it, all without re-seeding, so your Grin balance is untouched. Adding a new key does not carry your username or profile to it; to keep a name on a new key, transfer the name through the [authority](../features/name-authority.md). See [Multiple identities](../features/identities.md). The `prev_npubs` field still records keys a wallet has moved away from.
 
-<div class="shot-todo"><strong>Screenshot:</strong> Settings → Identity card (Copy npub, Back up to a file, Rotate nostr key, Import identity), dark theme.</div>
+<div class="shot-todo"><strong>Screenshot:</strong> Settings → Identity card (Copy npub, Back up to a file, and the identity switcher), dark theme.</div>
 
 **Backup & restore.** "Back up to a file" exports the whole identity (encrypted key + name + history) as one sealed JSON file. Importing it on a new device decrypts with the export-time password and re-encrypts under the new wallet's password, so moving devices preserves your username and history. (Moving a wallet needs *both* backups: the seed phrase for funds, and the identity file for your name + key.)
 

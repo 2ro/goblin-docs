@@ -20,7 +20,8 @@ The theme picker lives in an **Appearance** section of Settings that gathers the
 
 - **Theme.** Light, Dark, or Yellow, as above.
 - **Language.** A selector for the wallet's display language; Goblin auto-detects your system language on first run and this lets you override it. See [Localization](localization.md).
-- **Hide amounts.** A privacy toggle for received-payment amounts in notifications: turn it on and an incoming-payment notification tells you a payment arrived without printing the figure on your lock screen, so a glance over your shoulder reveals nothing. It affects the notification only, not the balance you see inside the app.
+
+The lone "Hide amounts" notification toggle that once sat here now lives on its own page alongside two further notification-privacy levels and the Anonymous-mode balance blur: see [Advanced Privacy & Anonymous mode](../features/anonymous-mode.md).
 
 When an app update is available, an **update button** appears near the profile panel. Tapping it opens the update dialog, which carries Goblin's own branding and the changelog for the new version, along with links to the source on [github.com/2ro/goblin](https://github.com/2ro/goblin), the community on [t.me/goblinfamily](https://t.me/goblinfamily), and these docs at [docs.goblin.st](https://docs.goblin.st).
 

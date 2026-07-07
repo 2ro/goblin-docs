@@ -16,6 +16,8 @@ Signing in to a website with a Nostr identity usually means handing your key to 
 
 **What the site gets, and does not get.** The key never leaves the wallet. The site receives a signature, not a secret, so it cannot act as you. A plain login grants no signing power: anything that would publish as you (listing a name for sale, signing an offer) still asks for your key separately at that moment. If you want a site to sign low-risk actions for you without asking each time, that is a separate, explicit step, and money always still asks. See [Authorize Sessions](authorize-sessions.md).
 
+**Completing across devices.** When you opened the wallet from a same-device button, a successful sign-in hands you back to the calling app. A QR sign-in is the cross-device case: your phone signed, but the site is on your laptop, so there is nowhere on the phone to return to. The wallet posts the signed login to the site's callback and simply stays put; the browser is watching for that and completes the sign-in on its own. You do not switch apps or copy anything back by hand.
+
 **Declining.** Cancel the modal, or simply let it expire, and nothing is sent. The site's login attempt just fails.
 
 <div class="shot-todo"><strong>Screenshots:</strong> magick.market login dialog with Log in with Goblin (button + QR), wallet approval modal showing domain, identity picker and password field, dark, 390×844.</div>

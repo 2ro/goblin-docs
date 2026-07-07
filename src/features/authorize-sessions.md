@@ -12,6 +12,8 @@ Authorize Sessions is the middle path. You grant one site, for one identity, the
 
 **The site asks you to trust it.** As with login, the request arrives over a Goblin URI: on the same device a button opens the app, from another device you scan a QR. A trust request is a superset of a login request. On approval the wallet signs the one-time login event **and** opens an encrypted channel to the site so it can make signing requests during the session.
 
+**The site is told the session exists, reliably.** Granting trust announces the new session so the site knows to start listening on the channel. The wallet now treats that announcement as confirmed only once it is accepted by the relay the site is actually watching (the one named in the request), and it re-publishes on its own until that happens rather than giving up after one try. On a cold [Tor](../pillars/tor.md) circuit that first reach can take a while, so the wallet waits longer before it will report a failure. The upshot is that a granted session actually lands with the site instead of the wallet quietly returning to the browser while the site never saw it.
+
 **The Trust screen.** The wallet shows a single modal, **Trust `<domain>`?**, with:
 
 - **Signing in as**: the identity that will sign (your private tag or claimed name, with the npub beneath it). If you hold several identities you choose one.
