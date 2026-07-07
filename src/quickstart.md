@@ -2,7 +2,7 @@
 
 New to Goblin? This is everything you need to send and receive money. It takes about two minutes.
 
-> Goblin is like Cash App, but for [Grin](https://grin.mw). You pay a **username**, your money stays private, and there's nothing to set up beyond a wallet.
+> Goblin is like Cash App, but for [Grin](https://grin.mw). You pay a **username** (an easy alias for your friend's real address, their npub), your money stays private, and there's nothing to set up beyond a wallet.
 
 ## 1. Set up your wallet
 
@@ -12,7 +12,7 @@ The first time you open Goblin:
 2. Pick a **wallet name** and a **password**.
 3. Goblin shows your **recovery phrase**: a list of words. Write them down on paper and keep them somewhere safe. **These words are your money.** If you lose them, nobody can get your funds back for you.
 4. Re-enter the words to confirm you saved them.
-5. Pick a **username** like `yourname` so friends can pay you, or tap **Skip** to stay anonymous.
+5. Your wallet already has an address, a long key called an **npub**. Optionally pick a **username** like `yourname`, a friendly alias that points to your npub, so friends can pay you without copying the key. Or tap **Skip** to stay anonymous.
 
 That's it. You're ready.
 

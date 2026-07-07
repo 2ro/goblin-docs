@@ -2,9 +2,9 @@
 
 <a class="cta" href="quickstart.html"><strong>New here? Start with the Quick start →</strong><span>Set up your wallet, get paid, and pay someone in about two minutes.</span></a>
 
-**Goblin is a private, mobile-first payments app for [Grin](https://grin.mw). Think Cash App, but the money is Grin, the addresses are usernames, and the whole conversation rides Tor.**
+**Goblin is a private, mobile-first payments app for [Grin](https://grin.mw). Think Cash App, but the money is Grin, your address is a Nostr key (an npub), and the whole conversation rides Tor.**
 
-You send to `alice`, not to a 90-character address. You tap *Pay/Request*, hold to confirm, and a Grin payment travels end-to-end encrypted over the [Nostr](https://github.com/nostr-protocol/nostr) network and [Tor](https://www.torproject.org), so no relay, no network observer, and no chain analyst can tie the sender to the receiver.
+You type `alice` instead of pasting a 90-character key: a username is an optional, friendly alias that the wallet resolves to the real address (the npub) behind the scenes. You tap *Pay/Request*, hold to confirm, and a Grin payment travels end-to-end encrypted over the [Nostr](https://github.com/nostr-protocol/nostr) network and [Tor](https://www.torproject.org), so no relay, no network observer, and no chain analyst can tie the sender to the receiver.
 
 ![Goblin home: balance, recent contacts, and an activity feed, connected over Tor](assets/goblin-home.png)
 
@@ -13,7 +13,7 @@ Under the hood Goblin stands on three pillars:
 | Pillar | What it gives Goblin |
 | --- | --- |
 | **[GRIM](pillars/grim-base.md)** | A complete, audited Grin wallet + node engine: seed, sync, and the Mimblewimble slatepack transaction machinery. Goblin forks it and keeps it. |
-| **[Nostr](pillars/nostr.md)** | The messaging layer. Usernames, encrypted payment messages (gift-wrapped slatepacks), and offline delivery, all without running our own bespoke server. |
+| **[Nostr](pillars/nostr.md)** | The messaging layer. Addresses (npub keys) with optional usernames on top, encrypted payment messages (gift-wrapped slatepacks), and offline delivery, all without running our own bespoke server. |
 | **[Tor](pillars/tor.md)** | The transport. All relay traffic and every HTTP request rides Tor, embedded in-process, out through a [Tor exit](pillars/tor-exit.md) to each destination's ordinary clearnet host. Only the public Grin chain connection is direct, by design. |
 
 Goblin is also one piece of a larger Grin-native stack: the [GoblinPay](https://docs.floonet.dev/goblinpay/) till, the [Magick Market](https://magick.market) marketplace, and [Floonet](https://docs.floonet.dev) relays all speak the same wallet-to-wallet payment rail. For a tour of how they fit together, and how to self-host them, see [goblin.st/use-cases](https://goblin.st/use-cases).

@@ -1,6 +1,6 @@
 # What is Goblin?
 
-> **Summary.** Goblin is a mobile-first wallet for [Grin](https://grin.mw) that lets you pay a **username** instead of swapping transaction files. It is a fork of the **GRIM** Grin wallet, with a Nostr-based messaging layer and an embedded **Tor** transport bolted on so payments are end-to-end encrypted and metadata-private from the network up.
+> **Summary.** Goblin is a mobile-first wallet for [Grin](https://grin.mw) that lets you pay a **username** or **npub** instead of swapping transaction files. (The npub, a Nostr key, is the actual address; a username is an optional alias that resolves to one.) It is a fork of the **GRIM** Grin wallet, with a Nostr-based messaging layer and an embedded **Tor** transport bolted on so payments are end-to-end encrypted and metadata-private from the network up.
 
 ## The problem Goblin solves
 
@@ -22,7 +22,7 @@ Three things, each documented in depth in these pages:
 
 - **A real Grin wallet underneath.** Goblin doesn't reimplement Grin; it [forks GRIM](../pillars/grim-base.md) and keeps its full node + wallet engine: seed and key management, chain sync, and the slatepack transaction state machine. Everything Goblin adds sits *on top* of an unmodified, audited wallet core.
 
-- **Nostr as the courier.** The slatepack is wrapped as an [encrypted Nostr message](../pillars/nostr.md) and delivered through public relays. Relays buffer messages for wallets that are offline, so the exchange is asynchronous. Relays only ever see ciphertext, never the amount, the sender, or the recipient. Usernames look like `alice`, backed by the [NIP-05](../features/name-authority.md) standard.
+- **Nostr as the courier.** The slatepack is wrapped as an [encrypted Nostr message](../pillars/nostr.md) and delivered through public relays. Relays buffer messages for wallets that are offline, so the exchange is asynchronous. Relays only ever see ciphertext, never the amount, the sender, or the recipient. Your address is your Nostr key (your npub); a username like `alice` is an optional [NIP-05](../features/name-authority.md) alias that resolves to it.
 
 - **Tor for network privacy.** Every connection Goblin makes (relay sockets *and* every HTTP request for name lookups, price, avatars) is tunneled through [Tor](../pillars/tor.md), embedded right inside the app, out through a Tor exit to each destination's ordinary clearnet host. The relay, and anyone watching the network, sees a Tor exit address, never your phone's IP. That's Tor's one narrow job; the [relay and the Nostr protocol](../pillars/nostr.md) hide the rest (the message content, the sender, and the send/receive timing). **Nothing Goblin sends touches the clear net**, except the Grin node connection, which carries only public chain data and is deliberately kept direct.
 
