@@ -34,7 +34,7 @@ Each pillar exists because the layer below it leaves a gap:
 - **Nostr** closes that gap: it turns the slatepack handshake into encrypted, store-and-forward messaging addressed by key, with human usernames on top. It also hides the *content*, the *sender* (a throwaway one-time key), and — via our own relay's randomized release delay — the *timing*. *Gap it leaves: the relay still sees your IP.*
 - **Tor** closes *that* one gap: the relay is the machine you connect to, so it's the only piece that can't hide your network location by itself. A Tor-exit circuit shows the relay a Tor address, never your phone. *Result: who-pays-whom is private from the chain up and the network down.*
 
-That division of labor is the whole design: **Tor hides your network location from the relay; the relay and the Nostr protocol hide everything else.** It's why Goblin needs Tor for one narrow job and not a full mixnet — see [Tor in Goblin](../pillars/tor.md).
+That division of labor is the whole design: **Tor hides your network location from the relay; the relay and the Nostr protocol hide everything else.** It's why Goblin needs Tor for just one narrow job — see [Tor in Goblin](../pillars/tor.md).
 
 ## What rides which transport
 

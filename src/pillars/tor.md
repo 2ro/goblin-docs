@@ -12,13 +12,13 @@ Encryption hides *what* you say; it doesn't hide *that you're saying it, to whom
   - **The sender** is a throwaway, one-time key. The relay never sees who really sent a payment, only a per-message ephemeral key.
   - **The timing**, the one thing an interactive payment would otherwise leak, since the two-message ping-pong is a recognizable pattern, is shuffled by **our own relay**, which holds each message and releases it to the recipient on a short randomized delay (see [below](#timing-privacy-the-relay-does-it)).
 
-So we need Tor for one narrow, well-suited job, hide the IP from the relay, and our own relay for the rest. That is why Goblin does **not** need a full mixnet's heavy machinery.
+So Goblin needs Tor for one narrow, well-suited job, hide the IP from the relay, and its own relay for the rest. That focused split is why Goblin needs no heavier privacy machinery.
 
-## Why Tor (and not a mixnet)
+## Why Tor
 
-Goblin's privacy transport used to be the Nym mixnet. We returned to Tor because a payments wallet has to stand on ground that doesn't move, and the mixnet's ground moved: the free bandwidth tier Goblin relied on turned out to be **testnet scaffolding that Nym is actively removing**, it is written to expire at UTC midnight, and Nym's public gateways are switching to a **paid model gated on holding the NYM token**. A money wallet can't stand on bandwidth that expires on a schedule or must be rented with a speculative token, and it went dark on us more than once.
+Tor is the right foundation to build a payments wallet's privacy on. It is free, unmetered, and battle-tested, carries no token and nothing to bond, and has nothing that expires on a schedule.
 
-Tor has none of those properties. It is free, unmetered, has no token, no bonding, and nothing to expire; it runs **in-process** on a phone (no separate program, no sidecar); it has the largest anonymity set of any deployed privacy network; it is lighter on the battery; and, measured where the user actually waits (sending, cold start), it is **faster**, because it skips a mixnet's built-in per-hop delays. GRIM has already proven the whole embedded path in production. The honest trade is covered under [the threat model](#what-tor-covers-and-what-covers-the-rest) below.
+It runs **in-process** on a phone (no separate program, no sidecar); it has the largest anonymity set of any deployed privacy network; it is light on the battery; and, measured where the user actually waits (sending, cold start), it is **fast**, because a payment flows through as fast as the circuit allows. GRIM has already proven the whole embedded path in production. The honest trade is covered under [the threat model](#what-tor-covers-and-what-covers-the-rest) below.
 
 ## How it works
 
@@ -42,7 +42,7 @@ The component pages:
 
 ## Timing privacy: the relay does it
 
-Tor is low-latency by design and does **not** shuffle message timing, a payment flows through as fast as the circuit allows. A mixnet's one genuine advantage was **timing unlinkability**: even an observer near both ends can't match "this sender uploaded at 10:01:03" to "that recipient downloaded at 10:01:04." Goblin rebuilds exactly that property in the one place it fully controls, **the relay**, which holds each incoming gift-wrap and releases it to the recipient after a short randomized (Poisson) delay. It is the same fuzzing a mixnet performs, collapsed onto the single server we operate, unmetered and always on.
+Tor is low-latency by design and does **not** shuffle message timing, a payment flows through as fast as the circuit allows. That leaves one property to provide elsewhere: **timing unlinkability**, so that even an observer near both ends can't match "this sender uploaded at 10:01:03" to "that recipient downloaded at 10:01:04." Goblin provides it in the one place it fully controls, **the relay**, which holds each incoming gift-wrap and releases it to the recipient after a short randomized (Poisson) delay. The mixing happens on the single server we operate, unmetered and always on.
 
 The elegant part is that this costs the user nothing they can see. The sender's on-screen "Sent" clears the moment the relay **confirms it holds the message**, not when the recipient receives it, and delivery to the recipient is already asynchronous and invisible (they may be offline for hours). The randomized delay lands entirely inside that already-invisible gap. It also stacks on a fuzz the wallet already applies: [NIP-59](nostr-protocol.md) backdates every gift-wrap's timestamp by a random offset of up to two days, so even the timestamps on the wire are decorrelated from real send time.
 
@@ -58,7 +58,7 @@ The realistic adversary is the relay operator, ISPs, near-endpoint observers, an
 | **Sender identity** | **The protocol**: a throwaway one-time key per message; the relay never sees the real sender. |
 | **Message size** | **The protocol**: NIP-44 padding, and gift-wraps are already near-uniform at payments volume. |
 
-**The one honest limitation.** A full distributed mixnet spreads its mixing across many independent nodes, which is what lets it resist a *global passive adversary* who can watch the entire internet at once. A single relay plus Tor does not, and Tor itself states plainly that it does not defend against an attacker who can watch **both ends** of a circuit. That adversary is out of scope for a low-value Grin payments wallet, and it is not the threat this wallet realistically faces. For the adversary that actually exists, every level above is covered.
+**The one honest limitation.** Tor states plainly that it does not defend against a *global passive adversary* who can watch the entire internet at once, an attacker who can see **both ends** of a circuit. A single relay plus Tor does not defend against that adversary either. That adversary is out of scope for a low-value Grin payments wallet, and it is not the threat this wallet realistically faces. For the adversary that actually exists, every level above is covered.
 
 ## What goes over Tor, and what doesn't
 

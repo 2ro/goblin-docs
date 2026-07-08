@@ -4,7 +4,7 @@
 
 ## Motivation
 
-The `nostr-sdk` relay pool normally opens websockets directly. To put relay traffic on Tor without forking the SDK, Goblin implements the SDK's `WebSocketTransport` trait with its own connector. This is the clean seam: the entire rest of the Nostr layer is unchanged; only *how a socket is opened* differs. It is the same seam the old mixnet transport plugged into, the byte source underneath simply changed from a mixnet stream to a Tor `DataStream`.
+The `nostr-sdk` relay pool normally opens websockets directly. To put relay traffic on Tor without forking the SDK, Goblin implements the SDK's `WebSocketTransport` trait with its own connector. This is the clean seam: the entire rest of the Nostr layer is unchanged; only *how a socket is opened* differs, the byte source underneath is a Tor `DataStream`.
 
 ## How it works
 
