@@ -1,6 +1,6 @@
 # Relays
 
-> **Summary.** Relays are the public servers that carry Goblin's encrypted messages. Goblin ships a **candidate pool** of vetted relays, verifies each one locally before use, advertises a short DM-relay list ([NIP-17](https://nips.nostr.com/17) `kind 10050`) so others know where to reach you, and lets you add, remove, and add-custom relays. Which set the wallet starts from depends on the [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) mode; the project's own `relay.floonet.dev` is always pinned and cannot be removed. When Tor routing is on, every relay, including the primary, is reached over a [Tor exit](tor-exit.md) to its clearnet host.
+> **Summary.** Relays are the public servers that carry Goblin's encrypted messages. Goblin ships a **candidate pool** of vetted relays, verifies each one locally before use, advertises a short DM-relay list ([NIP-17](https://nips.nostr.com/17) `kind 10050`) so others know where to reach you, and lets you add, remove, and add-custom relays. Which set the wallet starts from depends on the [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) mode; the project's own `relay.floonet.dev` is included by default in both. When Tor routing is on, every relay, including the primary, is reached over a [Tor exit](tor-exit.md) to its clearnet host.
 
 ## Motivation
 
@@ -8,13 +8,13 @@ Nostr has no central server: reachability depends on sender and receiver sharing
 
 ## How it works
 
-- **The set depends on the transport.** `relay.floonet.dev` (the project's own [Floonet](https://docs.floonet.dev) relay, the floonet-strfry package running stock [strfry](https://github.com/hoytech/strfry) with a write policy restricting stored kinds to the handful Goblin needs) is **always pinned** and cannot be removed. Around it:
-  - **On Tor**, the wallet uses a **fixed pinned relay set** of Tor-exit-friendly relays (`relay.floonet.dev`, plus known Tor-friendly relays such as `relay.0xchat.com` and `offchain.pub`). `relay.damus.io` and `nos.lol` are excluded because they refuse connections from Tor exit nodes.
-  - **On clearnet**, the wallet draws a **per-identity random healthy subset** from the [candidate pool](#the-candidate-pool), with `relay.floonet.dev` always pinned. A random subset spreads load and avoids every clearnet wallet clustering on the same handful of servers.
-- **Your choices are remembered per wallet, and per transport.** Any relay you add or remove is saved for **this wallet**, and saved **separately for Tor and for clearnet**, so flipping [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) restores the list you last used in that mode. These choices **survive app updates**. `relay.floonet.dev` stays pinned in both lists.
+- **The set depends on the transport.** `relay.floonet.dev` (the project's own [Floonet](https://docs.floonet.dev) relay, the floonet-strfry package running stock [strfry](https://github.com/hoytech/strfry) with a write policy restricting stored kinds to the handful Goblin needs) is **included by default** in both modes. Around it:
+  - **On Tor**, the wallet uses a **fixed default relay set** of Tor-exit-friendly relays (`relay.floonet.dev`, plus known Tor-friendly relays such as `relay.0xchat.com` and `offchain.pub`). `relay.damus.io` and `nos.lol` are excluded because they refuse connections from Tor exit nodes.
+  - **On clearnet**, the wallet draws a **per-identity random healthy subset** from the [candidate pool](#the-candidate-pool), plus `relay.floonet.dev` by default. A random subset spreads load and avoids every clearnet wallet clustering on the same handful of servers.
+- **Your choices are remembered per wallet, and per transport.** Any relay you add or remove, including the default `relay.floonet.dev`, is saved for **this wallet**, and saved **separately for Tor and for clearnet**, so flipping [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) restores the list you last used in that mode. These choices **survive app updates**.
 - **Advertising reachability.** Your wallet publishes a `kind 10050` DM-relay list (capped at 3) so a sender's wallet knows which relays to deliver your payment to. The same event carries an `encryption` tag advertising the wallet's [NIP-44 v3 capability](nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback). The list is also fanned out, publish-only, to the pool's *discovery* indexers so a payer who shares no relay with you can still find your inbox list. `nprofile` shares carry relay hints too, so a fresh recipient is reachable without any lookup.
 - **Selection is sticky.** The advertised set is picked once and persisted; there is no timer rotation, because churning a `kind 10050` list breaks payers' cached routing.
-- **Editing.** **Settings → Nostr Relays** shows your list and lets you **add**, **remove**, and **add a custom** `wss://…` relay (URLs are normalized: a bare host gets `wss://`). The one relay you cannot remove is the pinned `relay.floonet.dev`. "Save & reconnect" rewrites your `kind 10050` and restarts the [service](nostr-service.md) on the new set.
+- **Editing.** **Settings → Nostr Relays** shows your list and lets you **add**, **remove**, and **add a custom** `wss://…` relay (URLs are normalized: a bare host gets `wss://`); any relay can be removed, the default `relay.floonet.dev` included. "Save & reconnect" rewrites your `kind 10050` and restarts the [service](nostr-service.md) on the new set.
 
 <div class="shot-todo"><strong>Screenshot:</strong> Settings → Nostr Relays editor (list + add field + Save & reconnect), dark theme.</div>
 
@@ -41,7 +41,7 @@ The wallet does **opportunistic [NIP-42](https://nips.nostr.com/42) relay auth a
 
 ### Floonet's payment-retention guarantee
 
-`relay.floonet.dev` (and other [Floonet](https://docs.floonet.dev) relays) **guarantee retention of payment messages**: a gift-wrapped payment cannot be prematurely deleted out from under a recipient who has not yet come online to fetch it. This is why the floonet relay is the one pinned, unremovable entry in every wallet's list. Floonet relays will soon also deliver a payment message **only to its intended recipient**, so a wrap is not served to anyone else who happens to query the relay.
+`relay.floonet.dev` (and other [Floonet](https://docs.floonet.dev) relays) **guarantee retention of payment messages**: a gift-wrapped payment cannot be prematurely deleted out from under a recipient who has not yet come online to fetch it. That guarantee is why the floonet relay ships as the default in every wallet's list. Floonet relays will soon also deliver a payment message **only to its intended recipient**, so a wrap is not served to anyone else who happens to query the relay.
 
 ## Reference
 

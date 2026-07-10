@@ -37,7 +37,7 @@ The Tor client is a **direct dependency**, linked into the binary via `arti-clie
 
 An earlier build (133) pinned the money-path relay behind a dedicated `.onion` address and dialed it directly over an onion circuit. Build 134 dropped that: the shared onion hop flapped under load and could stall a payment mid-handshake, so every relay, including `relay.floonet.dev`, is now reached the same way as any other, over a Tor exit. See [The relay's Tor exit path](tor-exit.md) for that history.
 
-The pinned relay set is now three Tor-exit-friendly relays: `relay.floonet.dev`, `relay.0xchat.com`, and `offchain.pub`. (`relay.damus.io` and `nos.lol` refuse connections from Tor exit nodes, so they aren't viable defaults under an all-Tor transport.)
+The default relay set on Tor is a fixed trio of Tor-exit-friendly relays: `relay.floonet.dev`, `relay.0xchat.com`, and `offchain.pub`. (`relay.damus.io` and `nos.lol` refuse connections from Tor exit nodes, so they aren't viable defaults under a Tor transport.) You can [edit the list](nostr-relays.md) freely; edits are remembered per wallet and per transport.
 
 Whichever request it is, TLS is negotiated end to end against the destination hostname, so the exit relay and every hop see only ciphertext.
 
