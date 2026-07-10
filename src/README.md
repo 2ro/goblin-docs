@@ -6,7 +6,9 @@
 
 You type `alice` instead of pasting a 90-character key: a username is an optional, friendly alias that the wallet resolves to the real address (the npub) behind the scenes. You tap *Pay/Request*, hold to confirm, and a Grin payment travels end-to-end encrypted over the [Nostr](https://github.com/nostr-protocol/nostr) network, so no relay, no network observer, and no chain analyst can tie the sender to the receiver. Turn on [Tor routing](pillars/tor.md#tor-routing-is-a-per-wallet-setting) (on by default for wallets that update; a per-wallet choice for new ones) and your IP is hidden from the relay too.
 
-![Goblin home: balance, recent contacts, and an activity feed, connected over Tor](assets/goblin-home.png)
+![Goblin home: balance, recent contacts, and an activity feed, connected over Tor (optional)](assets/goblin-home.png)
+
+*Goblin home, [connected over Tor (optional)](pillars/tor.md#tor-routing-is-a-per-wallet-setting).*
 
 Under the hood Goblin stands on three pillars:
 
