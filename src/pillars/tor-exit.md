@@ -4,7 +4,7 @@
 
 ## Motivation
 
-The relay is the one machine the wallet must open a socket to, so it is exactly the piece that can't hide your network location on its own, that is [Tor's narrow job](tor.md#motivation). Routing that connection through a Tor exit closes the gap without needing anything special from the relay operator: the relay sees a Tor exit address on the wire, never the wallet's IP, and the relay itself needs no onion service, no pinned address, and no extra infrastructure. The one requirement on the relay side is mundane: it has to accept connections from Tor exit nodes, which is why `relay.damus.io` and `nos.lol` (both of which block Tor exits) aren't usable defaults, and why the pinned pool sticks to relays known to accept them (`relay.floonet.dev`, `relay.0xchat.com`, `offchain.pub`).
+The relay is the one machine the wallet must open a socket to, so it is exactly the piece that can't hide your network location on its own, that is [Tor's narrow job](tor.md#motivation). Routing that connection through a Tor exit closes the gap without needing anything special from the relay operator: the relay sees a Tor exit address on the wire, never the wallet's IP, and the relay itself needs no onion service, no pinned address, and no extra infrastructure. The one requirement on the relay side is mundane: it has to accept connections from Tor exit nodes, which is why `relay.damus.io` and `nos.lol` (both of which block Tor exits) aren't usable defaults, and why the fixed Tor default set sticks to relays known to accept them (`relay.floonet.dev`, `relay.nostr.net`, `offchain.pub`).
 
 ## How it works
 

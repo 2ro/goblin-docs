@@ -10,13 +10,13 @@ It pairs naturally with keeping [separate, unlinkable identities](identities.md)
 
 ## Notification privacy
 
-The **Notifications** section decides how much an incoming-payment or payment-request alert prints on your lock screen. Three independent toggles, from least to most private:
+The **Notifications** section decides how much an incoming-payment or payment-request alert prints on your lock screen. Three toggles, from least to most private:
 
 - **Hide amounts.** The alert still names who paid, but the figure is left off, so a glance over your shoulder reveals nothing about the size of the payment.
 - **Hide names.** The alert leaves out who paid, showing a generic sender instead of a name or npub.
 - **Hide all details.** The alert collapses to a single generic private line, *"You got paid. Open Goblin to see."* (and the request equivalent), with no name and no amount at all. On Android an empty amount collapses the notification template down to just that private line.
 
-Hide all details takes precedence; below it, hide names and hide amounts apply independently, so you can hide just the figure, just the sender, or both. Hide amounts is the same setting that older builds exposed as the lone "Hide amounts" toggle, so upgrading keeps its exact meaning; the two new levels default off.
+**Hide all details takes precedence, and turning it on visually locks Hide amounts and Hide names on** — the alert is already stripped to the single private line, so those two can add nothing while it is set. Your own Hide-amounts and Hide-names choices are preserved underneath the lock: turn Hide all details back off and each returns to whatever you last set it to. With Hide all details off, hide names and hide amounts apply independently, so you can hide just the figure, just the sender, or both. Hide amounts is the same setting that older builds exposed as the lone "Hide amounts" toggle, so upgrading keeps its exact meaning; the two new levels default off.
 
 ## Anonymous mode
 

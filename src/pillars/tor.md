@@ -37,7 +37,7 @@ The Tor client is a **direct dependency**, linked into the binary via `arti-clie
 
 An earlier build (133) pinned the money-path relay behind a dedicated `.onion` address and dialed it directly over an onion circuit. Build 134 dropped that: the shared onion hop flapped under load and could stall a payment mid-handshake, so every relay, including `relay.floonet.dev`, is now reached the same way as any other, over a Tor exit. See [The relay's Tor exit path](tor-exit.md) for that history.
 
-The default relay set on Tor is a fixed trio of Tor-exit-friendly relays: `relay.floonet.dev`, `relay.0xchat.com`, and `offchain.pub`. (`relay.damus.io` and `nos.lol` refuse connections from Tor exit nodes, so they aren't viable defaults under a Tor transport.) You can [edit the list](nostr-relays.md) freely; edits are remembered per wallet and per transport.
+The default relay set on Tor is a fixed trio of Tor-exit-friendly relays: `relay.floonet.dev`, `relay.nostr.net`, and `offchain.pub`. (`relay.damus.io` and `nos.lol` refuse connections from Tor exit nodes, so they aren't viable defaults under a Tor transport.) You can [edit the list](nostr-relays.md) freely; edits are remembered per wallet and per transport.
 
 Whichever request it is, TLS is negotiated end to end against the destination hostname, so the exit relay and every hop see only ciphertext.
 
@@ -79,7 +79,7 @@ The paths below describe a wallet with **Tor routing on**. With Tor off, every r
 | --- | --- |
 | Nostr relay sockets (payments + identity events) | **Tor**: a Tor-exit circuit to the relay's clearnet host. |
 | NIP-05 name lookups + registration | **Tor**: a Tor-exit circuit to the name authority's clearnet host. |
-| Price feed, avatars, relay-pool + NIP-11 probes | **Tor**: out through a normal exit relay to the clearnet host (Tor resolves the name at the exit). |
+| Price feed, avatars, relay-pool + NIP-11 probes, in-app update check | **Tor**: out through a normal exit relay to the clearnet host (Tor resolves the name at the exit). |
 | DNS | **None on the device**: Tor resolves every hostname at its exit. There is never a clearnet lookup. |
 | Grin **node** connection (sync, broadcast) | **Direct, always**: public chain data, not tied to your identity. The privacy budget is spent on the money path; chain sync favors liveness over anonymity, and Tor-wrapping it would buy nothing but latency. |
 
