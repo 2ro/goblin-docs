@@ -29,6 +29,8 @@ Each entry carries:
 - **Roles**: `dm` (eligible to carry gift-wrapped payments) and/or `discovery` (an indexer that only ever receives the public identity events, never a wrap).
 - **A vetted date**: vetted entries are weighted 3:1 when the advertised set is drawn.
 
+Some entries are **clearnet-only**: relays that refuse connections from Tor exit nodes (`relay.primal.net`, `nos.lol`, `relay.damus.io`) are in the pool for wallets running on clearnet, but are never drawn while [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) is on.
+
 An earlier pool schema also carried a per-relay `onion` field for a pinned onion service; build134 dropped it along with the onion-dialing path (see [The relay's Tor exit path](tor-exit.md)), so current pool entries carry neither an `onion` nor a co-located exit field.
 
 A pool relay is only ever used after passing a **NIP-11 gate**, checked lazily right before use (results cached for 24 hours): it must accept messages of at least 128 KiB (a worst-case payment wrap is ~66 KB on the wire), must not require payment, AUTH, or restricted writes, and must tolerate [NIP-59](https://nips.nostr.com/59)'s up-to-2-day backdated timestamps. The NIP-11 fetch itself runs over Tor.
