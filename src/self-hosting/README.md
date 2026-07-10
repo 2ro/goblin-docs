@@ -1,6 +1,6 @@
 # Self-hosting overview
 
-> **Summary.** Goblin's public infrastructure (the `goblin.st` name authority and the default `relay.floonet.dev` relay) is all run-your-own. Wallets already reach any relay over Tor automatically, so there's no separate onion service to run. None of it is a hard dependency: you can point a Goblin wallet at your own name authority and your own relay, and build the app from source.
+> **Summary.** Goblin's public infrastructure (the `goblin.st` name authority and the default `relay.floonet.dev` relay) is all run-your-own. Wallets reach relays over a Tor exit (not an onion) whenever [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) is on, so there's no separate onion service to run, just make sure your relay accepts Tor exit traffic. None of it is a hard dependency: you can point a Goblin wallet at your own name authority and your own relay, and build the app from source.
 
 ## Why self-host
 

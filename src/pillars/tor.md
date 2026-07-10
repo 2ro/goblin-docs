@@ -1,6 +1,17 @@
 # Tor in Goblin
 
-> **Summary.** Goblin routes every Nostr relay socket and every HTTP request (names, price feed, avatars) through **Tor**, embedded **in-process** with [arti](https://tpo.pages.torproject.net/core/arti/) (Tor written in Rust), the same engine our sister wallet [GRIM](grim-base.md) already ships. Every relay, including the default money-path relay, is reached over a **Tor exit to its ordinary clearnet host**; there is no onion hop anywhere in the current design. The relay and every network observer see a Tor exit address, never your phone's IP. The division of labor is the whole idea: **Tor hides your network location from the relay; the relay and the Nostr protocol hide everything else.** The one deliberate exception is the Grin **node** connection, which stays direct: public chain data, where liveness matters more than anonymity.
+> **Summary.** When **Tor routing** is on, Goblin sends every Nostr relay socket and every HTTP request (names, price feed, avatars) through **Tor**, embedded **in-process** with [arti](https://tpo.pages.torproject.net/core/arti/) (Tor written in Rust), the same engine our sister wallet [GRIM](grim-base.md) already ships. Every relay, including the default money-path relay, is reached over a **Tor exit to its ordinary clearnet host**; there is no onion hop anywhere in the current design. The relay and every network observer see a Tor exit address, never your phone's IP. The division of labor is the whole idea: **Tor hides your network location from the relay; the relay and the Nostr protocol hide everything else.** Tor routing is a **per-wallet setting** (see [below](#tor-routing-is-a-per-wallet-setting)), not a permanent fixture. The Grin **node** connection stays direct in either mode: public chain data, where liveness matters more than anonymity.
+
+## Tor routing is a per-wallet setting
+
+Whether the wallet's Nostr traffic rides Tor is a switch you own, remembered per wallet and kept across app updates.
+
+- **Where.** **Settings → Privacy → Tor routing**, a single On/Off row with a large purple-and-yellow switch. The full **Network privacy** screen breaks down exactly what rides which path (payments, usernames, price) and carries the *"Route through Tor"* control with the caption *"Hide your IP from relays."*
+- **Defaults.** A wallet you **update** keeps **Tor on**, exactly as before. A **brand-new** wallet defaults to **Tor off** (clearnet) and you choose during onboarding's [Network privacy step](../features/onboarding.md).
+- **With Tor off.** The same Nostr traffic still goes out end-to-end encrypted, but **direct** from your device, so the relay (and your ISP) can see your IP address. The in-app copy says as much and suggests pairing clearnet mode with a VPN if hiding your IP still matters to you.
+- **The Grin node is always direct.** In both modes the node connection is clearnet by design; only Nostr traffic (payments, usernames, price) ever rides Tor. Turning Tor off changes nothing about how the node syncs or broadcasts.
+
+The [Network privacy](../features/anonymous-mode.md) presentation controls (blurred balance, private notifications) are separate and independent of this switch.
 
 ## Motivation
 
@@ -62,13 +73,15 @@ The realistic adversary is the relay operator, ISPs, near-endpoint observers, an
 
 ## What goes over Tor, and what doesn't
 
-| Traffic | Path |
+The paths below describe a wallet with **Tor routing on**. With Tor off, every row marked **Tor** instead goes **direct** (clearnet, still end-to-end encrypted, but the relay and your ISP see your IP); DNS is then a normal device lookup; and the Grin node row is unchanged, because it is always direct.
+
+| Traffic | Path (Tor routing on) |
 | --- | --- |
 | Nostr relay sockets (payments + identity events) | **Tor**: a Tor-exit circuit to the relay's clearnet host. |
-| NIP-05 name lookups + registration | **Tor**: a Tor-exit circuit to the `goblin.st` name authority's clearnet host. |
+| NIP-05 name lookups + registration | **Tor**: a Tor-exit circuit to the name authority's clearnet host. |
 | Price feed, avatars, relay-pool + NIP-11 probes | **Tor**: out through a normal exit relay to the clearnet host (Tor resolves the name at the exit). |
 | DNS | **None on the device**: Tor resolves every hostname at its exit. There is never a clearnet lookup. |
-| Grin **node** connection (sync, broadcast) | **Direct, by design**: public chain data, not tied to your identity. The privacy budget is spent on the money path; chain sync favors liveness over anonymity, and Tor-wrapping it would buy nothing but latency. |
+| Grin **node** connection (sync, broadcast) | **Direct, always**: public chain data, not tied to your identity. The privacy budget is spent on the money path; chain sync favors liveness over anonymity, and Tor-wrapping it would buy nothing but latency. |
 
 ## References
 

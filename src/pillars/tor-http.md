@@ -4,7 +4,7 @@
 
 ## Motivation
 
-It would be easy to leave "just a name lookup" or "just the price" on the clear net. Goblin deliberately doesn't: a name lookup reveals *who you're about to pay*, and any clearnet request reveals your IP and ties you to the app. The rule is simple and absolute: **everything over Tor**, so there's no accidental leak to audit for.
+It would be easy to leave "just a name lookup" or "just the price" on the clear net even when the wallet is otherwise private. Goblin deliberately doesn't: a name lookup reveals *who you're about to pay*, and any clearnet request reveals your IP and ties you to the app. So whenever [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) is on the rule is simple and absolute, **everything over Tor**, with no side channel left on the clear net to audit for. (When a wallet is in clearnet mode these same requests go direct, the deliberate trade the user chose.)
 
 ## How it works
 

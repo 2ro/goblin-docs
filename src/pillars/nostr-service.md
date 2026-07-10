@@ -10,7 +10,7 @@ A wallet that pays by message needs a persistent worker: something that keeps re
 
 When a wallet opens with Nostr enabled, it spawns a `NostrService` on a dedicated tokio runtime. The service:
 
-- **Holds the decrypted keys** in memory only (never re-serialized to disk) and builds a `nostr-sdk` client whose relay transport is the [Tor websocket transport](tor-relay-transport.md), so every relay socket runs over Tor.
+- **Holds the decrypted keys** in memory only (never re-serialized to disk) and builds a `nostr-sdk` client whose relay transport is the [Tor websocket transport](tor-relay-transport.md) when [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) is on, so every relay socket runs over Tor; in clearnet mode the same client dials the relays directly.
 - **Subscribes** for `kind 1059` gift wraps addressed to your key, with a **3-day lookback** (NIP-59 randomizes timestamps up to ~2 days into the past, so the window must be generous). Incoming events flow into the [ingest policy](nostr-ingest.md).
 - **Runs the send pipeline**: build rumor → seal → gift wrap → publish to *your* relays and the recipient's DM relays. Progress is published to the UI through an atomic `send_phase` (`IDLE → WORKING → SENT / FAILED`, plus `REQUEST_BLOCKED`), with a human-readable reason on failure.
 - **Rate-limits incoming senders** to blunt spam: a known **contact** may send ~30 events/hour, an **unknown** key ~10/hour.

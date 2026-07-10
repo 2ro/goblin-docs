@@ -38,7 +38,7 @@ That division of labor is the whole design: **Tor hides your network location fr
 
 ## What rides which transport
 
-A deliberate split (see [the transport page](../pillars/tor.md#what-goes-over-tor-and-what-doesnt)):
+A deliberate split (see [the transport page](../pillars/tor.md#what-goes-over-tor-and-what-doesnt)). The **Tor** rows below apply when [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) is on (the default for updated wallets, and a per-wallet choice for new ones); with it off those same rows go **direct**, still end-to-end encrypted but exposing your IP to the relay. The Grin node row is always direct.
 
 | Traffic | Path | Why |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 # Onboarding
 
-> **Summary.** First run walks you from nothing to a funded, named wallet: create or restore a wallet, confirm your recovery phrase, and optionally claim a username, with a prominent skip so you can stay anonymous. Goblin connects to a Grin node automatically, so there's no node setup to wade through.
+> **Summary.** First run walks you from nothing to a funded, named wallet: create or restore a wallet, confirm your recovery phrase, choose your network privacy, and optionally claim a username, with a prominent skip so you can stay anonymous. Goblin connects to a Grin node automatically, so there's no node setup to wade through.
 
 ## Motivation
 
@@ -14,7 +14,8 @@ The flow (`OnboardingContent`) steps through:
 2. **Wallet setup**: name + password, or choose **restore**.
 3. **Recovery phrase**: generate (12–24 words) or import. Import supports paste, a **SeedQR** scan, and (Build 158) a **Choose a .backup file** picker: point it at a full wallet `.backup`, unlock it with the wallet password, and it fills the 24-word grid for you. This step uses GRIM's `MnemonicSetup` word grid and validation.
 4. **Confirm words**: verify the phrase by re-entering it.
-5. **Identity**: optionally claim a `username` (reusing the [name-authority](name-authority.md) claim flow) or import an existing identity (`nsec` / backup). A prominent **Skip** keeps you anonymous.
+5. **Network privacy**: choose whether the wallet's Nostr traffic rides [Tor](../pillars/tor.md#tor-routing-is-a-per-wallet-setting). The step explains what goes over the network (*"Goblin sends only a few things over the network, each sealed with end-to-end encryption so relays can't read them or link them to you."*) and offers the *"Route through Tor"* switch, captioned *"Hide your IP from relays."* A brand-new wallet defaults this **off** (clearnet); it applies to this wallet and is changeable later under **Settings → Privacy → Tor routing**. Wallets that *update* from an older version keep Tor on and don't see this step.
+6. **Identity**: optionally claim a `username` (reusing the [name-authority](name-authority.md) claim flow) or import an existing identity (`nsec` / backup). A prominent **Skip** keeps you anonymous.
 
 On completion the new wallet is opened and its [NostrService](../pillars/nostr-service.md) starts. Restoring from a bare seed phrase gives you a *fresh* random nostr identity by default; you bring an old one back via **Import**. Restoring from a full `.backup` file instead brings **every** identity it held back automatically once the wallet opens (a *"Restoring your identities…"* card shows the progress), with the previously active identity re-selected.
 
@@ -24,7 +25,7 @@ On completion the new wallet is opened and its [NostrService](../pillars/nostr-s
 
 In `goblin/src/gui/views/goblin/onboarding.rs`:
 
-- `OnboardingContent` + `Step` enum. The live flow is Intro → WalletSetup → Words → ConfirmWords → Identity; the legacy `Node` step is retired (`#[allow(dead_code)]`) and the wallet auto-connects to a default public node, with node management in **Settings → Advanced**.
+- `OnboardingContent` + `Step` enum. The live flow is Intro → WalletSetup → Words → ConfirmWords → Network privacy → Identity; the legacy `Node` step is retired (`#[allow(dead_code)]`) and the wallet auto-connects to a default public node, with node management in **Settings → Advanced**. The network-privacy step writes the wallet's Tor-routing preference (default off for a fresh wallet); updated wallets keep their existing on setting and skip the step.
 - `OnbImport`: optional identity import (nsec / backup, with password when sealed), async worker result.
 - Reuses GRIM `MnemonicSetup.word_list_ui` (made `pub(crate)`), with SeedQR scan.
 - Hosted in `goblin/src/gui/views/wallets/content.rs` (replaces only the empty-state branch; the stock GRIM wallet-creation path stays for later wallets).

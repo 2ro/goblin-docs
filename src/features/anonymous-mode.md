@@ -4,7 +4,7 @@
 
 ## Motivation
 
-Goblin already keeps the *network* from linking a payment to you: traffic rides [Tor](../pillars/tor.md) and payment contents are end-to-end encrypted. Advanced Privacy covers the other threat, the person standing next to you. A notification on your lock screen or a glance at your open wallet can leak who paid you and how much, even though the network learned nothing. This page gathers those shoulder-surfing defences in one place, separate from the network privacy that is always on.
+Goblin already keeps the *network* from linking a payment to you: payment contents are end-to-end encrypted, and with [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) on the relay never sees your IP either. Advanced Privacy covers the other threat, the person standing next to you. A notification on your lock screen or a glance at your open wallet can leak who paid you and how much, even though the network learned nothing. This page gathers those shoulder-surfing defences in one place, separate from that network privacy.
 
 It pairs naturally with keeping [separate, unlinkable identities](identities.md): different faces for different contexts on the network, and a censored surface so a shoulder glance cannot read any of them either.
 
@@ -45,6 +45,6 @@ In `goblin/src/gui/views/goblin/`:
 
 ## References
 
-- The always-on network privacy this complements: [Network privacy](../pillars/tor.md).
+- The network privacy this complements (a per-wallet Tor switch): [Network privacy](../pillars/tor.md).
 - Separate faces for separate contexts: [Multiple identities](identities.md).
 - What the notification looks like normally: [Balance, node health & fiat rate](../subsystems/balance.md).

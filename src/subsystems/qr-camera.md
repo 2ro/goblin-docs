@@ -8,7 +8,7 @@ In person, a QR is the fastest "address exchange" there is, and for a recovery p
 
 ## How it works
 
-- **Showing.** The Receive screen and "My Code" tab render your `nprofile` (npub + relay hints) as a QR so a payer can scan it and reach you with no lookup. Long payloads use animated **Uniform Resources (UR)**: a sequence of frames.
+- **Showing.** The Receive screen and "My Code" tab render your `nprofile` (npub + relay hints) as a QR so a payer can scan it and reach you with no lookup, with the black Goblin logo centred in the code. The screen's **Share** and **Copy** actions hand over the same `nprofile` string. Long payloads use animated **Uniform Resources (UR)**: a sequence of frames.
 - **Scanning.** The camera feed is decoded with `rqrr`; the recipient row and home header offer a scanner for scan-to-pay, and onboarding offers a **SeedQR** scan to import a phrase. Only text QR results are accepted into the recipient field. A plain `nostr:<nprofile>` code fills only the recipient; a **pay-URI** code (for example a GoblinPay checkout QR, `nostr:<nprofile>?amount=…&memo=…`) also fills the **amount** and **note**, so scanning a checkout needs no retyping. Prefilling is all scanning does: the amount and review screens still confirm the send.
 - **Cross-platform camera.** Backed by `nokhwa` (V4L on Linux, MSMF on Windows, AVFoundation on macOS). Frames that arrive as raw YUYV are decoded before QR scanning; a "No camera found" state appears if nothing opens.
 

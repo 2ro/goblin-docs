@@ -7,7 +7,7 @@
 - **GRIM** builds and finalizes the Grin slatepacks.
 - **The [Nostr protocol](../pillars/nostr-protocol.md)** wraps each slatepack as an encrypted message.
 - **The [NostrService](../pillars/nostr-service.md)** publishes and receives them.
-- **[Tor](../pillars/tor.md)** carries every byte.
+- **[Tor](../pillars/tor.md)** carries every byte, when [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) is on (the diagram below assumes it is; in clearnet mode the same legs go direct).
 - **The [ingest policy](../pillars/nostr-ingest.md)** decides what each side does with what it receives.
 
 ## Standard payment, step by step
@@ -43,7 +43,7 @@ Neither party pasted a slatepack, and neither needed the other online at the sam
 
 ## How the bytes travel
 
-Every message above rides [Tor](../pillars/tor.md), and the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it). The primary relay, like every other relay, is dialed over a [Tor exit](../pillars/tor-exit.md) to its clearnet host, so the payment path never touches the clear net from the device, and it's fast: the money-path relay connects in a few seconds even from a cold app start, and a funded payment finalizes in about eight seconds end to end.
+With [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) on, every message above rides [Tor](../pillars/tor.md); the wraps themselves are [NIP-44 encrypted](../pillars/nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback) (v3 when both wallets support it) either way. The primary relay, like every other relay, is then dialed over a [Tor exit](../pillars/tor-exit.md) to its clearnet host, so the payment path never touches the clear net from the device, and it's fast: the money-path relay connects in a few seconds even from a cold app start, and a funded payment finalizes in about eight seconds end to end.
 
 ## Requests (invoice flow)
 

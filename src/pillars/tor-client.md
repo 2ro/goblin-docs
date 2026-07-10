@@ -13,7 +13,7 @@ Rather than write our own Tor engine, Goblin **copies GRIM's**. GRIM's `src/tor/
 
 ## How it works
 
-At startup `warm_up()` spawns a background task that bootstraps the Tor client on a dedicated runtime and keeps it alive for the life of the process:
+The client is only started when the active wallet has [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) on; a wallet running in clearnet mode never bootstraps Tor at all. When it is on, `warm_up()` spawns a background task that bootstraps the Tor client on a dedicated runtime and keeps it alive for the life of the process:
 
 1. **One bootstrap.** Tor is a *single* bootstrap — one client, one connect. The bootstrap overlaps with app launch, so it's mostly invisible; warming the circuit at launch hides even the first-send edge.
 2. **Exit dialing.** Once bootstrapped, the client opens Tor-exit circuits to the [relay](tor-exit.md) pool's clearnet hosts, the [name authority](../features/name-authority.md), and the [small background lookups](tor-http.md). Goblin only connects *out*; it never publishes a service of its own. (An earlier build also dialed a pinned relay `.onion` directly; that path was dropped in build134, see [The relay's Tor exit path](tor-exit.md).)
