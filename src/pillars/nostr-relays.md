@@ -10,7 +10,7 @@ Nostr has no central server: reachability depends on sender and receiver sharing
 
 - **The set depends on the transport.** `relay.floonet.dev` (the project's own [Floonet](https://docs.floonet.dev) relay, the floonet-strfry package running stock [strfry](https://github.com/hoytech/strfry) with a write policy restricting stored kinds to the handful Goblin needs) is **included by default** in both modes. Around it:
   - **On Tor**, the wallet uses a **fixed default relay set** of Tor-exit-friendly relays (`relay.floonet.dev`, plus known Tor-friendly relays such as `relay.nostr.net` and `offchain.pub`). `relay.damus.io` and `nos.lol` are excluded because they refuse connections from Tor exit nodes.
-  - **On clearnet**, the wallet draws a **per-identity random healthy subset** from the [candidate pool](#the-candidate-pool), plus `relay.floonet.dev` by default. A random subset spreads load and avoids every clearnet wallet clustering on the same handful of servers.
+  - **On clearnet**, the wallet draws a **per-identity random healthy subset** from the [candidate pool](#the-candidate-pool), plus `relay.floonet.dev` by default. A random subset spreads load and avoids every clearnet wallet clustering on the same handful of servers. Until a subset has been drawn, it starts from the built-in defaults, the same trio as on Tor: `relay.floonet.dev`, `relay.nostr.net` and `offchain.pub`. (Build 169 replaced `relay.0xchat.com`, which has left the network, with `relay.nostr.net`.)
 - **Your choices are remembered per wallet, and per transport.** Any relay you add or remove, including the default `relay.floonet.dev`, is saved for **this wallet**, and saved **separately for Tor and for clearnet**, so flipping [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) restores the list you last used in that mode. These choices **survive app updates**.
 - **Advertising reachability.** Your wallet publishes a `kind 10050` DM-relay list (capped at 3) so a sender's wallet knows which relays to deliver your payment to. The same event carries an `encryption` tag advertising the wallet's [NIP-44 v3 capability](nostr-protocol.md#encryption-nip-44-v3-with-v2-fallback). The list is also fanned out, publish-only, to the pool's *discovery* indexers so a payer who shares no relay with you can still find your inbox list. `nprofile` shares carry relay hints too, so a fresh recipient is reachable without any lookup.
 - **Selection is sticky.** The advertised set is picked once and persisted; there is no timer rotation, because churning a `kind 10050` list breaks payers' cached routing.
@@ -22,7 +22,7 @@ Nostr has no central server: reachability depends on sender and receiver sharing
 
 ### The candidate pool
 
-The pool is a maintained list of vetted public relays, fetched from the project's published pool file **over Tor**, cached on disk, and refreshed when the cache is older than 7 days. A pinned copy is compiled into the app, byte-for-byte the published contents, so first-run and offline behave exactly like a fresh fetch.
+The pool is a maintained list of vetted public relays, fetched from the project's published pool file **over Tor**, cached on disk, and refreshed when the cache is older than 7 days. A pinned copy is compiled into the app for first run and offline: a core subset of the published pool in the same schema (`relay.floonet.dev` and `relay.nostr.net` with the `dm` and `discovery` roles, `offchain.pub` with `dm`).
 
 Each entry carries:
 
@@ -47,8 +47,8 @@ The wallet does **opportunistic [NIP-42](https://nips.nostr.com/42) relay auth a
 
 ## Reference
 
-- `goblin/src/nostr/pool.rs`: `RelayPool` / `PoolRelay`, `PINNED_POOL`, `load()` / `refresh_if_stale()`, the NIP-11 gate (`nip11_pass()`, `probe()`), `weighted_order()`, `usable_discovery_relays()`, `MIN_MESSAGE_LENGTH = 131072`.
-- `goblin/src/nostr/relays.rs`: `DEFAULT_RELAYS`, `MAX_DM_RELAYS = 3`, `normalize_relay_url()`; default name authority constants (`HOME_NIP05_DOMAIN`, `DEFAULT_NIP05_SERVER`).
+- `goblin/src/nostr/pool.rs`: `RelayPool` / `PoolRelay`, `PINNED_POOL` (`pool.rs:65-75`), `load()` / `refresh_if_stale()`, the NIP-11 gate (`nip11_pass()`, `probe()`), `weighted_order()`, `usable_discovery_relays()`, `MIN_MESSAGE_LENGTH = 131072`.
+- `goblin/src/nostr/relays.rs`: `DEFAULT_RELAYS` and `TOR_RELAYS` (`relays.rs:35`, `:46`), `MAX_DM_RELAYS = 3`, `normalize_relay_url()`; default name authority constants (`HOME_NIP05_DOMAIN`, `DEFAULT_NIP05_SERVER`).
 - Advertised-set selection and the discovery fan-out: `ensure_advertised_set()` and `publish_identity()` in `goblin/src/nostr/client.rs`.
 - Editor + "Save & reconnect": the relays page in `goblin/src/gui/views/goblin/mod.rs` (`SettingsPage::Relays`, `relay_summary()`); the row that opens it is the **Nostr Relays** entry in the Identity card.
 - Relay transport: every socket runs over [Tor](tor-relay-transport.md).

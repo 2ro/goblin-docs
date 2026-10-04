@@ -24,6 +24,13 @@ A wallet that accepts messages from strangers and moves money is an attractive t
 | **Relays gated by a local NIP-11 probe** | A broken or hostile relay pool entry silently dropping payments | [Relays](../pillars/nostr-relays.md#the-candidate-pool) |
 | **Reserved names, homograph folding, cooldown** | Impersonation / squatting on names | [Name authority](../features/name-authority.md) |
 | **Tag-independent classification** | A sender lying about message type via tags | [Protocol](../pillars/nostr-protocol.md) (classify by parsed slate only) |
+| **A failed dispatch is final** | One intended payment being paid twice after *Try again* | [Send & request](../features/send-request.md), [Ingest policy](../pillars/nostr-ingest.md) (`nostr_cancel_slate()`; `SendFailed` never finalized or re-sent) |
+| **One cancel-safety rule** | Cancelling a payment that may already be on chain | [Cancel & decline](../features/cancel-decline.md#when-cancel-is-offered-the-cancel-safety-rule) (`cancel_safe()`) |
+| **Sessions never touch payment messages; crypto needs the Direct messages grant** | A trusted site reading or writing your wallet's payment messages | [Authorize Sessions](../features/authorize-sessions.md) (`is_wallet_protocol_payload()`, `decide_crypto()`) |
+| **Site HTTP auth for its own domain only; strict site domains and callback binding** | A site's signature or token being used at another service | [Authorize Sessions](../features/authorize-sessions.md#reference), [Sign in](../features/sign-in.md) (`http_auth_target()`, `domain_bound()`) |
+| **Password change moves seed and identities together** | A wallet left with the seed and identities on different passwords | [Identity](../pillars/nostr-identity.md#how-it-works) (`change_password()`) |
+| **Secret screens hidden from capture; secret copies cleared after 45 s** *(capture: Android)* | A seed or `nsec` leaking through screenshots, screen recording, the Recents view or the clipboard | [Identity](../pillars/nostr-identity.md#how-it-works) (`FLAG_SECURE`, `copySecretText`) |
+| **Overlay touches ignored on money-commit screens** *(Android)* | Another app's window steering a hold-to-send or hold-to-accept | [Send & request](../features/send-request.md) (`touch_filter_wanted()`) |
 
 On the server side, the [name authority](../self-hosting/name-authority.md) runs under a hardened systemd sandbox and trusts an `X-Real-IP` set by its reverse proxy for rate limiting. Because many Goblin clients reach the relay over Tor (those connections arrive from shared Tor exit IPs), server-side abuse controls are tuned to be per-connection / per-account rather than naive per-IP.
 
@@ -32,5 +39,8 @@ On the server side, the [name authority](../self-hosting/name-authority.md) runs
 - Ingest invariants: `goblin/src/nostr/ingest.rs`.
 - Protocol ceilings + tag-independence: `goblin/src/nostr/protocol.rs`.
 - Key at rest: `goblin/src/nostr/identity.rs`.
+- Failed dispatch and the cancel-safety rule: `nostr_cancel_slate()` (`goblin/src/wallet/wallet.rs:3920`), `cancel_safe()` (`goblin/src/wallet/types.rs:417`).
+- Session guards: `goblin/src/nostr/session/classify.rs:158` (`is_wallet_protocol_payload()`), `:251` (`http_auth_target()`); `goblin/src/nostr/session/mod.rs:339` (`decide_crypto()`); `goblin/src/nostr/authuri.rs:223`, `:323` (site domain, callback binding).
+- Android capture, clipboard and overlay guards: `goblin/android/app/src/main/java/mw/gri/android/MainActivity.java:387-413` (touch filter), `:552-610` (secret copy and clear), `:826` (`FLAG_SECURE`).
 - Replay protection: `goblin/src/nostr/store.rs` and the server's NIP-98 handling.
 - Live guards are covered by `goblin/tests/{nostr_e2e,replay_check}.rs`.

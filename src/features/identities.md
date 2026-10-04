@@ -24,7 +24,7 @@ One person is often several "yous". A seller on [magick.market](https://magick.m
 
 **Deleting.** Delete sits at the bottom of the manage sheet and is double-gated: first a warning that the identity will be permanently removed, with a reminder to back it up first, then your wallet password. Deleting an identity you have not backed up is unrecoverable; the key is gone for good. Two guard rails: you cannot delete your last identity, and deleting the active one switches you to another identity first. Your funds are not at risk either way, because they live on the seed, not the identity.
 
-**Security model, in plain words.** Each identity's key is encrypted on your device with your wallet password, exactly like the single identity always was. Keys are only unlocked in memory while the wallet is open; close the wallet and every identity locks again.
+**Security model, in plain words.** Each identity's key is encrypted on your device with your wallet password, exactly like the single identity always was. Keys are only unlocked in memory while the wallet is open; close the wallet and every identity locks again. Changing the wallet password moves the seed and every identity to the new password together, or changes nothing (see [Changing the wallet password](../pillars/nostr-identity.md#how-it-works)).
 
 <div class="shot-todo"><strong>Screenshots:</strong> Identity switcher list with tags, Add identity (generate, with import toggle), Manage sheet, Delete warning with backup reminder, dark, 390×844.</div>
 

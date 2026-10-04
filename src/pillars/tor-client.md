@@ -1,6 +1,6 @@
 # The embedded Tor client
 
-> **Summary.** Goblin links Tor directly with [arti](https://tpo.pages.torproject.net/core/arti/) (Tor written in Rust) and runs one process-lifetime client, copied almost verbatim from our sister wallet [GRIM](grim-base.md)'s proven engine. It bootstraps at app launch, it's gated on a real end-to-end readiness signal before the UI ever shows "Connected," it's health-checked for its whole life, and a dead circuit is rebuilt automatically. Goblin only ever *dials* over Tor — it never hosts a service — which makes it simpler than GRIM, which also hosts an onion to receive.
+> **Summary.** Goblin links Tor directly with [arti](https://tpo.pages.torproject.net/core/arti/) (Tor written in Rust) and runs one process-lifetime client, copied almost verbatim from our sister wallet [GRIM](grim-base.md)'s proven engine. It bootstraps at app launch, it's gated on a real end-to-end readiness signal before the UI ever shows "Connected," it's health-checked for its whole life, and a dead circuit is rebuilt automatically. Goblin only ever *dials* over Tor (it never hosts a service), which makes it simpler than GRIM, which also hosts an onion to receive.
 
 ## Motivation
 
@@ -13,9 +13,9 @@ Rather than write our own Tor engine, Goblin **copies GRIM's**. GRIM's `src/tor/
 
 ## How it works
 
-The client is only started when the active wallet has [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) on; a wallet running in clearnet mode never bootstraps Tor at all. When it is on, `warm_up()` spawns a background task that bootstraps the Tor client on a dedicated runtime and keeps it alive for the life of the process:
+The client is warmed up at app launch, whatever the wallets' settings, so it is ready by first use. A wallet with [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) off never sends its own traffic through it, and the app-level requests (price feed, update check) use it only while no wallet is open or at least one open wallet has Tor on. `warm_up()` spawns a background task that bootstraps the Tor client on a dedicated runtime and keeps it alive for the life of the process:
 
-1. **One bootstrap.** Tor is a *single* bootstrap — one client, one connect. The bootstrap overlaps with app launch, so it's mostly invisible; warming the circuit at launch hides even the first-send edge.
+1. **One bootstrap.** Tor is a *single* bootstrap: one client, one connect. The bootstrap overlaps with app launch, so it's mostly invisible; warming the circuit at launch hides even the first-send edge.
 2. **Exit dialing.** Once bootstrapped, the client opens Tor-exit circuits to the [relay](tor-exit.md) pool's clearnet hosts, the [name authority](../features/name-authority.md), and the [small background lookups](tor-http.md). Goblin only connects *out*; it never publishes a service of its own. (An earlier build also dialed a pinned relay `.onion` directly; that path was dropped in build134, see [The relay's Tor exit path](tor-exit.md).)
 3. **Readiness gate.** The UI refuses to show "Connected" until the transport is genuinely live: arti has bootstrapped, the Tor circuit is up, **and** a required relay is actually subscribed on it. A pipe that opened but can't yet deliver never latches the UI green.
 4. **Health and rebuild.** A live circuit is watched, and a circuit that dies is torn down and rebuilt automatically. The wallet's existing "the connection died, bring it back" logic and its background/foreground handling map cleanly onto Tor circuits.
@@ -28,15 +28,15 @@ The client is only started when the active wallet has [Tor routing](tor.md#tor-r
 
 ## Mobile
 
-**Android is solved** — GRIM already ships embedded Tor there and the recipe copies over. It comes down to two things: **arti compiles into the app's native library** (the same `.so` the rest of the Rust already lives in — no separate process), and a few environment variables are set **before the Rust runtime starts**. The critical one is `ARTI_FS_DISABLE_PERMISSION_CHECKS=true` (GRIM sets it in `MainActivity.java` before loading native code): arti's `fs-mistrust` layer normally refuses to start if its state directory has "too-open" Unix permissions, and Android's app sandbox always trips that check — so without this flag Tor simply never boots on a phone. It's a known one-line fix, not a research problem.
+**Android is solved**: GRIM already ships embedded Tor there and the recipe copies over. It comes down to two things: **arti compiles into the app's native library** (the same `.so` the rest of the Rust already lives in, no separate process), and a few environment variables are set **before the Rust runtime starts**. The critical one is `ARTI_FS_DISABLE_PERMISSION_CHECKS=true` (GRIM sets it in `MainActivity.java` before loading native code): arti's `fs-mistrust` layer normally refuses to start if its state directory has "too-open" Unix permissions, and Android's app sandbox always trips that check, so without this flag Tor simply never boots on a phone. It's a known one-line fix, not a research problem.
 
-**iOS** should work — nothing about arti is Android-specific — but it is treated as unproven until we ship it, so it gets its own spike. Two things going in: iOS runs **plain Tor without pluggable-transport bridges** (the platform won't let an app spawn the helper processes those need, which is fine for reaching the relay), and the same `fs-mistrust` / state-directory questions get answered against iOS's sandbox.
+**iOS** should work (nothing about arti is Android-specific), but it is treated as unproven until we ship it, so it gets its own spike. Two things going in: iOS runs **plain Tor without pluggable-transport bridges** (the platform won't let an app spawn the helper processes those need, which is fine for reaching the relay), and the same `fs-mistrust` / state-directory questions get answered against iOS's sandbox.
 
 ## Reference
 
 In `goblin/src/tor/` (copied from GRIM's `grim/src/tor/`, four files: `config.rs`, `mod.rs`, `tor.rs`, `types.rs`):
 
-- `warm_up()`: idempotent background start; the bootstrap/dial/readiness/watch loop on a dedicated runtime.
+- `warm_up()`: idempotent background start; the bootstrap/dial/readiness/watch loop on a dedicated runtime (`goblin/src/tor/engine.rs:107`). Called once at app launch (`goblin/src/lib.rs:124`) and again by any Tor-route request that finds the client down (`wait_ready()`, `engine.rs:177`).
 - `is_ready()` / `transport_ready()`: the readiness surface the Nostr client and the UI use; `transport_ready()` is relay-gated on the current circuit generation.
 - arti wiring: `TorClient` on the `TokioNativeTlsRuntime`, arti 0.43.
 - Android bring-up: native-lib link + `ARTI_FS_DISABLE_PERMISSION_CHECKS=true` set in `MainActivity.java` before native code loads.

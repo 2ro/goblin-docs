@@ -7,7 +7,9 @@
 Whether the wallet's Nostr traffic rides Tor is a switch you own, remembered per wallet and kept across app updates.
 
 - **Where.** **Settings → Privacy → Tor routing**, a single On/Off row with a large purple-and-yellow switch. The full **Network privacy** screen breaks down exactly what rides which path (payments, usernames, price) and carries the *"Route through Tor"* control with the caption *"Hide your IP from relays."*
-- **Defaults.** A wallet you **update** keeps **Tor on**, exactly as before. A **brand-new** wallet defaults to **Tor off** (clearnet) and you choose during onboarding's [Network privacy step](../features/onboarding.md).
+- **Defaults.** A wallet you **update** keeps **Tor on**, exactly as before. A **brand-new** wallet defaults to **Tor off** (clearnet) and you choose during onboarding's [Network privacy step](../features/onboarding.md). The choice is saved before the new wallet first opens, so a wallet created with Tor off uses the direct connection from its very first session.
+- **Each wallet follows its own switch.** Every request made for a wallet (its relay sockets, name lookups and username registration, sign-in and trust callbacks, avatars, the relay-pool refresh and NIP-11 probes) uses *that* wallet's setting: each HTTP request reads it as it leaves, and the relay connection is rebuilt when you flip the switch. With two wallets open, one Tor on and one off, neither changes how the other's requests travel.
+- **App-level requests.** The price feed and the in-app update check belong to no wallet. They go over Tor unless at least one wallet is open and every open wallet has Tor off; with no wallet open they use Tor.
 - **With Tor off.** The same Nostr traffic still goes out end-to-end encrypted, but **direct** from your device, so the relay (and your ISP) can see your IP address. The in-app copy says as much and suggests pairing clearnet mode with a VPN if hiding your IP still matters to you.
 - **The Grin node is always direct.** In both modes the node connection is clearnet by design; only Nostr traffic (payments, usernames, price) ever rides Tor. Turning Tor off changes nothing about how the node syncs or broadcasts.
 
@@ -73,19 +75,22 @@ The realistic adversary is the relay operator, ISPs, near-endpoint observers, an
 
 ## What goes over Tor, and what doesn't
 
-The paths below describe a wallet with **Tor routing on**. With Tor off, every row marked **Tor** instead goes **direct** (clearnet, still end-to-end encrypted, but the relay and your ISP see your IP); DNS is then a normal device lookup; and the Grin node row is unchanged, because it is always direct.
+The paths below describe a wallet with **Tor routing on**. With Tor off, every row marked **Tor** that belongs to that wallet instead goes **direct** (clearnet, still end-to-end encrypted, but the relay and your ISP see your IP); DNS is then a normal device lookup; and the Grin node row is unchanged, because it is always direct. The app-level row follows the rule [above](#tor-routing-is-a-per-wallet-setting).
 
 | Traffic | Path (Tor routing on) |
 | --- | --- |
 | Nostr relay sockets (payments + identity events) | **Tor**: a Tor-exit circuit to the relay's clearnet host. |
 | NIP-05 name lookups + registration | **Tor**: a Tor-exit circuit to the name authority's clearnet host. |
-| Price feed, avatars, relay-pool + NIP-11 probes, in-app update check | **Tor**: out through a normal exit relay to the clearnet host (Tor resolves the name at the exit). |
+| Avatars, sign-in and trust callbacks, relay-pool + NIP-11 probes | **Tor**: out through a normal exit relay to the clearnet host (Tor resolves the name at the exit). |
+| Price feed, in-app update check (app-level) | **Tor**, unless at least one wallet is open and every open wallet has Tor off. |
 | DNS | **None on the device**: Tor resolves every hostname at its exit. There is never a clearnet lookup. |
 | Grin **node** connection (sync, broadcast) | **Direct, always**: public chain data, not tied to your identity. The privacy budget is spent on the money path; chain sync favors liveness over anonymity, and Tor-wrapping it would buy nothing but latency. |
 
 ## References
 
 - Tor engine (copied from GRIM's proven `grim/src/tor/`): `goblin/src/tor/{mod,engine,transport}.rs` (arti 0.43, native-tls runtime).
-- The seams the transport plugs into: `goblin/src/nostr/{client,pool}.rs`.
+- The seams the transport plugs into: `goblin/src/nostr/client/` and `goblin/src/nostr/pool.rs`.
+- Per-request routing: `Route` (`goblin/src/tor/mod.rs:80`); every wallet request passes its wallet's own `tor_enabled()`. App-level requests use `app_route()` (`tor/mod.rs:127-138`), fed by a registry of open wallets set when a wallet's service starts or its Tor toggle changes (`set_wallet_route()`, `tor/mod.rs:116`; `goblin/src/nostr/client/service.rs:172`, `goblin/src/gui/views/goblin/privacy.rs:230`) and cleared when the wallet closes (`goblin/src/wallet/wallet.rs:1471`). Callers: `goblin/src/http/price.rs:248`, `goblin/src/http/release.rs:148`.
+- New wallet's choice written before first open: `goblin/src/gui/views/goblin/onboarding.rs:936-949`.
 - arti (Tor in Rust): <https://tpo.pages.torproject.net/core/arti/>.
 - The Tor Project: <https://www.torproject.org>.

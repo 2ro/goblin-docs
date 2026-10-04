@@ -30,7 +30,7 @@ ALICE                                                   BOB
 
 1. **Resolve.** If you typed `bob`, the wallet resolves it to an `npub` via [NIP-05](name-authority.md), an HTTPS lookup that goes over Tor. (Paste an `npub`/`nprofile` and this is skipped; relay hints may come along for free.)
 2. **Build leg 1.** GRIM creates the Standard-1 slatepack for `5 ツ` to Bob and records `tx_meta` (`direction = Sent`, `status = Created`).
-3. **Wrap & send.** The [send pipeline](../pillars/nostr-service.md) builds a `kind 14` rumor (preamble + slatepack + note), seals and gift-wraps it ([NIP-59](../pillars/nostr-protocol.md)), and publishes the `kind 1059` to *your* relays and Bob's DM relays, all over [Tor](../pillars/tor-relay-transport.md). Status → `AwaitingS2`. The send spinner completes as soon as a relay acknowledges the write, so the UI shows "Sent" promptly; a background read-back re-checks delivery without holding up the screen.
+3. **Wrap & send.** The [send pipeline](../pillars/nostr-service.md) builds a `kind 14` rumor (preamble + slatepack + note), seals and gift-wraps it ([NIP-59](../pillars/nostr-protocol.md)), and publishes the `kind 1059` to *your* relays and Bob's DM relays, all over [Tor](../pillars/tor-relay-transport.md). Status → `AwaitingS2`. The send spinner completes as soon as the relay write returns, so the UI shows "Sent" promptly; a background read-back re-checks delivery without holding up the screen (it only logs, and never re-sends). If the dispatch fails, the payment is cancelled on the spot, its coins unlock, and you see *"Couldn't send"* with **Try again**, which builds one new payment; the failed one is never re-sent and can't complete later (see [Send & request](send-request.md)).
 4. **Bob ingests.** Bob's wallet (even if just reconnected) pulls the gift wrap, unwraps it, parses the slate, and runs [`decide()`](../pillars/nostr-ingest.md). A new payment under the default policy → `AutoReceive`.
 5. **Build leg 2.** Bob's GRIM builds the Standard-2 reply.
 6. **Reply.** Bob's wallet gift-wraps and publishes it back to Alice's relays, over Tor.
@@ -47,7 +47,7 @@ With [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) on, ev
 
 ## Requests (invoice flow)
 
-A *request* runs the same machinery with the roles inverted: you issue an Invoice-1 ("please pay me `5 ツ`"), the payer's wallet **surfaces it for explicit approval** (never auto-paid; see [ingest policy](../pillars/nostr-ingest.md)), and on approval the Invoice-2/finalize legs complete. Declining or cancelling sends a [void control message](cancel-decline.md).
+A *request* runs the same machinery with the roles inverted: you issue an Invoice-1 ("please pay me `5 ツ`"), the payer's wallet **surfaces it for explicit approval** (never auto-paid; see [ingest policy](../pillars/nostr-ingest.md)), and on approval the Invoice-2/finalize legs complete. Declining or cancelling sends a [void control message](cancel-decline.md). If your wallet finalizes a paid request but the broadcast to the Grin node fails, the next retry re-posts the already finalized transaction (the same recovery a send has), so a paid request can't get stuck unbroadcast.
 
 ## Payment proofs (on request)
 
@@ -58,8 +58,9 @@ That is the whole rule. An ordinary person-to-person send carries no proof and i
 ## Where it's wired
 
 - UI dispatch: `goblin/src/gui/views/goblin/send.rs` → `WalletTask::NostrSend` / `NostrRequest` / `NostrPayRequest`.
-- Task handling + finalize/broadcast: `goblin/src/wallet/wallet.rs` (the `WalletTask::Nostr*` arm, guarded wrappers `nostr_receive` / `nostr_finalize_post` / `nostr_pay`).
-- Wrap/unwrap + publish/subscribe: `goblin/src/nostr/{protocol,client}.rs`.
+- Task handling + finalize/broadcast: `goblin/src/wallet/wallet.rs` (the `WalletTask::Nostr*` arm, guarded wrappers `nostr_receive` / `nostr_finalize_post` / `nostr_pay`). A failed post is retried from the saved finalized slatepack of the slate's own flow (`Standard3` for a send, `Invoice3` for a request): `nostr_finalize_post()` and `finalized_state_for()`, `wallet.rs:1981` and `:2032`.
+- Failed dispatch: `nostr_cancel_slate()` (`wallet.rs:3920`), called from the `NostrSend` / `NostrRequest` arms (`wallet.rs:3351-3385`, `:3468-3483`).
+- Wrap/unwrap + publish/subscribe: `goblin/src/nostr/protocol.rs` and `goblin/src/nostr/client/` (`send.rs` for the send pipeline, `service.rs` for the relay loop and reconcile).
 - Accept/finalize decisions: `goblin/src/nostr/ingest.rs`.
 
 ## References

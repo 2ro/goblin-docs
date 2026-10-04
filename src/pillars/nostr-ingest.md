@@ -23,7 +23,8 @@ The invariants that must never be weakened:
 - **Invoice-1 (someone asking you to pay) is never auto-paid.** It can only become `SurfaceRequest`, which requires you to hold-to-approve.
 - **A reply only finalizes if it matches your pending transaction** *and* the sender equals the stored counterparty `npub`. A Standard-2 from the wrong key, or with no matching send, is dropped.
 - **Zero-amount and already-seen slates are dropped** (anti-noise, anti-replay).
-- **Crash tolerance**: replies are also accepted when the local tx is still in `Created`/`SendFailed` (not yet flipped to `AwaitingS2`), because a send can crash between building and recording, but still only from the expected counterparty.
+- **Crash tolerance**: replies are also accepted when the local tx is still `Created` (not yet flipped to `AwaitingS2`), because a send can crash between building and recording, but still only from the expected counterparty.
+- **A failed dispatch is final.** A reply to a payment or request whose dispatch failed is never finalized: you saw the failure and may already have paid again with *Try again*, so finishing the old one could pay twice. Since Build 169 the wallet cancels a failed dispatch at once and never writes `SendFailed`; a row an older build left in `SendFailed` is closed at the next start and its reply is dropped. See [Send & request](../features/send-request.md).
 
 ## Reference
 
@@ -31,7 +32,8 @@ In `goblin/src/nostr/ingest.rs`:
 
 - `IngestDecision` enum: `AutoReceive`, `SurfaceIncoming`, `FinalizePost`, `SurfaceRequest`, `Drop(&'static str)`.
 - `IngestContext` struct: parsed slate, amount, sender npub, stored meta, `is_contact`, accept policy, `allow_requests`.
-- `decide(ctx) -> IngestDecision`: the whole policy; covers Standard-1/2 and Invoice-1/2.
+- `decide(ctx) -> IngestDecision`: the whole policy; covers Standard-1/2 and Invoice-1/2 (`ingest.rs:64`). The reply allow-sets (`Created` or `AwaitingS2` / `AwaitingI2`, never `SendFailed`) are at `ingest.rs:100-115` (Standard-2) and `ingest.rs:133-143` (Invoice-2).
+- Closing a legacy `SendFailed` row at service start: `reconcile_action()` / `reconcile()` in `goblin/src/nostr/client/service.rs:1029` and `:1055`.
 - Accept policies (`Everyone` / `Contacts` / `Ask`) come from [config](nostr-storage.md).
 
 ## References

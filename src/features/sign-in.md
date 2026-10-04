@@ -24,7 +24,7 @@ Signing in to a website with a Nostr identity usually means handing your key to 
 
 ## Reference
 
-- The login URI (`goblin:login?c=<64-hex challenge>&d=<domain>&cb=<https callback>`; `nostr:login` is the byte-identical QR form) is parsed fail-closed in `goblin/src/nostr/loginuri.rs`, mirroring the pay-URI parser. A login-shaped URI that fails validation is rejected whole: it never reaches the pay path and never opens an approval modal.
+- The login URI (`goblin:login?c=<64-hex challenge>&d=<domain>&cb=<https callback>`; `nostr:login` is the byte-identical QR form) is parsed fail-closed in `goblin/src/nostr/loginuri.rs`, mirroring the pay-URI parser. A login-shaped URI that fails validation is rejected whole: it never reaches the pay path and never opens an approval modal. The domain and callback follow the same rules as a [trust request](authorize-sessions.md#reference): `d` must be a real site name of two or more labels (letters, digits, hyphens; `localhost` only for development), and the `https` callback's host, read by the same URL parser that sends the POST, must be that domain or a subdomain (`loginuri.rs:133`, `:166`; shared checks in `goblin/src/nostr/authuri.rs:223` and `:323`).
 - On approval the wallet signs a kind-22242 event (NIP-42 client auth: empty content, `challenge` and `domain` tags) with the chosen identity's key and POSTs it to the callback as `{"event": …}`.
 - The approval modal and its lifecycle (`LoginState`, one pending request at a time, `LOGIN_EXPIRY_SECS = 120`, password-gated signing, quiet outcome toast) live in `goblin/src/gui/views/goblin/mod.rs`.
 - The `login` keyword cannot collide with a pay recipient: a bech32 `npub`/`nprofile` always starts `npub1`/`nprofile1`.
