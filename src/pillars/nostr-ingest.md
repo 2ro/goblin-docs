@@ -33,7 +33,7 @@ In `goblin/src/nostr/ingest.rs`:
 - `IngestDecision` enum: `AutoReceive`, `SurfaceIncoming`, `FinalizePost`, `SurfaceRequest`, `Drop(&'static str)`.
 - `IngestContext` struct: parsed slate, amount, sender npub, stored meta, `is_contact`, accept policy, `allow_requests`.
 - `decide(ctx) -> IngestDecision`: the whole policy; covers Standard-1/2 and Invoice-1/2 (`ingest.rs:64`). The reply allow-sets (`Created` or `AwaitingS2` / `AwaitingI2`, never `SendFailed`) are at `ingest.rs:100-115` (Standard-2) and `ingest.rs:133-143` (Invoice-2).
-- Closing a legacy `SendFailed` row at service start: `reconcile_action()` / `reconcile()` in `goblin/src/nostr/client/service.rs:1029` and `:1055`.
+- Closing a legacy `SendFailed` row at service start: `reconcile_action()` / `reconcile()` in `goblin/src/nostr/client/service.rs:1039` and `:1075`.
 - Accept policies (`Everyone` / `Contacts` / `Ask`) come from [config](nostr-storage.md).
 
 ## References

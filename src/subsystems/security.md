@@ -39,7 +39,7 @@ On the server side, the [name authority](../self-hosting/name-authority.md) runs
 - Ingest invariants: `goblin/src/nostr/ingest.rs`.
 - Protocol ceilings + tag-independence: `goblin/src/nostr/protocol.rs`.
 - Key at rest: `goblin/src/nostr/identity.rs`.
-- Failed dispatch and the cancel-safety rule: `nostr_cancel_slate()` (`goblin/src/wallet/wallet.rs:3920`), `cancel_safe()` (`goblin/src/wallet/types.rs:417`).
+- Failed dispatch and the cancel-safety rule: `nostr_cancel_slate()` (`goblin/src/wallet/wallet.rs:4026`), `cancel_safe()` (`goblin/src/wallet/types.rs:417`).
 - Session guards: `goblin/src/nostr/session/classify.rs:158` (`is_wallet_protocol_payload()`), `:251` (`http_auth_target()`); `goblin/src/nostr/session/mod.rs:339` (`decide_crypto()`); `goblin/src/nostr/authuri.rs:223`, `:323` (site domain, callback binding).
 - Android capture, clipboard and overlay guards: `goblin/android/app/src/main/java/mw/gri/android/MainActivity.java:387-413` (touch filter), `:552-610` (secret copy and clear), `:826` (`FLAG_SECURE`).
 - Replay protection: `goblin/src/nostr/store.rs` and the server's NIP-98 handling.

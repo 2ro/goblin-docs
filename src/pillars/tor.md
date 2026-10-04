@@ -90,7 +90,7 @@ The paths below describe a wallet with **Tor routing on**. With Tor off, every r
 
 - Tor engine (copied from GRIM's proven `grim/src/tor/`): `goblin/src/tor/{mod,engine,transport}.rs` (arti 0.43, native-tls runtime).
 - The seams the transport plugs into: `goblin/src/nostr/client/` and `goblin/src/nostr/pool.rs`.
-- Per-request routing: `Route` (`goblin/src/tor/mod.rs:80`); every wallet request passes its wallet's own `tor_enabled()`. App-level requests use `app_route()` (`tor/mod.rs:127-138`), fed by a registry of open wallets set when a wallet's service starts or its Tor toggle changes (`set_wallet_route()`, `tor/mod.rs:116`; `goblin/src/nostr/client/service.rs:172`, `goblin/src/gui/views/goblin/privacy.rs:230`) and cleared when the wallet closes (`goblin/src/wallet/wallet.rs:1471`). Callers: `goblin/src/http/price.rs:248`, `goblin/src/http/release.rs:148`.
+- Per-request routing: `Route` (`goblin/src/tor/mod.rs:80`); every wallet request passes its wallet's own `tor_enabled()`. App-level requests use `app_route()` (`tor/mod.rs:127-138`), fed by a registry of open wallets set when a wallet's service starts or its Tor toggle changes (`set_wallet_route()`, `tor/mod.rs:116`; `goblin/src/nostr/client/service.rs:172`, `goblin/src/gui/views/goblin/privacy.rs:230`) and cleared when the wallet closes (`goblin/src/wallet/wallet.rs:1487`). Callers: `goblin/src/http/price.rs:248`, `goblin/src/http/release.rs:148`.
 - New wallet's choice written before first open: `goblin/src/gui/views/goblin/onboarding.rs:936-949`.
 - arti (Tor in Rust): <https://tpo.pages.torproject.net/core/arti/>.
 - The Tor Project: <https://www.torproject.org>.
