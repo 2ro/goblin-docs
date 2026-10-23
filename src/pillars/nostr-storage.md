@@ -15,7 +15,7 @@ A per-wallet [rkv](https://docs.rs/rkv) (SafeMode/LMDB) archive at `wallet_data/
 - **`tx_meta`**: nostr context for a slate (counterparty `npub`, direction, note, status, the gift-wrap/rumor event ids, timestamps), keyed by slate id and joined to the GRIM tx log.
 - **`contacts`**: people you've paid or saved (petname, `nip05` + when last verified, DM relays, avatar hue, a `blocked` flag, and an `unknown` flag for keys auto-added from an incoming payment).
 - **`requests`**: incoming/outgoing payment requests by rumor id.
-- **`processed`**: event/rumor ids already handled, with slate state, pruned after **30 days** (replay + dedup guard).
+- **`processed`**: event/rumor ids already handled, with slate state, pruned after **30 days** (replay + dedup guard). It also holds the parse-attempt markers (`parse:<id>`, an attempt count and a time) that let a message which crashed the slatepack parser be retried once and then skipped; they are pruned on the same 30 days. See [Ingest policy](nostr-ingest.md#before-the-parser).
 
 ### Per-wallet config
 
@@ -31,7 +31,7 @@ A `nostr.toml` (`NostrConfig`) holding: `enabled`, `relays` override, `accept_fr
 
 ## Reference
 
-- Store: `goblin/src/nostr/store.rs`: rkv SafeMode, the named databases above, 30-day TTL on `processed`. (Note: the env is opened with extra capacity so reopening a full set of DBs doesn't panic, a fix recorded in the wallet history.)
+- Store: `goblin/src/nostr/store.rs`: rkv SafeMode, the named databases above, 30-day TTL on `processed`; parse-attempt markers via `set_parse_attempts()` and `parse_attempts()` (`store.rs:327`, `:345`), each written in one commit. (Note: the env is opened with extra capacity so reopening a full set of DBs doesn't panic, a fix recorded in the wallet history.)
 - Config: `goblin/src/nostr/config.rs`: `AcceptPolicy`, `NostrConfig`, `load()/save()`, `home_domain()`.
 - Types: `goblin/src/nostr/types.rs`: directions, statuses, `TxNostrMeta`, `Contact`, `PaymentRequest`.
 

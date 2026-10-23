@@ -12,6 +12,7 @@ A wallet that accepts messages from strangers and moves money is an attractive t
 | --- | --- | --- |
 | **Requests are never auto-paid** | A stranger draining you with an Invoice-1 | [Ingest policy](../pillars/nostr-ingest.md) (`decide()` → `SurfaceRequest`) |
 | **Replies bound to counterparty + pending tx** | A forged Standard-2/Invoice-2 finalizing something | [Ingest policy](../pillars/nostr-ingest.md) |
+| **Slatepacks checked before the pinned parser; a message that crashed it retried once, then skipped** | A crafted message closing the app, on Android at every launch | [Ingest policy](../pillars/nostr-ingest.md#before-the-parser) (`precheck()`, parse-attempt markers) |
 | **Size ceilings (64 K / 32 K / 30 K / 256)** | Memory-blow-up / DoS via huge messages | [Protocol](../pillars/nostr-protocol.md) constants |
 | **Encrypted key at rest** | Offline key theft; password grinding | [Identity](../pillars/nostr-identity.md): NIP-49 `ncryptsec`, scrypt `log_N=16`, `0600` |
 | **Processed-id archive + 30-day TTL** | Replaying an old payment message | [Storage](../pillars/nostr-storage.md) (`processed` db) |
@@ -38,8 +39,9 @@ On the server side, the [name authority](../self-hosting/name-authority.md) runs
 
 - Ingest invariants: `goblin/src/nostr/ingest.rs`.
 - Protocol ceilings + tag-independence: `goblin/src/nostr/protocol.rs`.
+- Slatepack precheck and parse-attempt markers: `goblin/src/wallet/slatepack_precheck.rs:102` (`precheck()`), `goblin/src/nostr/client/service.rs:1971-2001`.
 - Key at rest: `goblin/src/nostr/identity.rs`.
-- Failed dispatch and the cancel-safety rule: `nostr_cancel_slate()` (`goblin/src/wallet/wallet.rs:4026`), `cancel_safe()` (`goblin/src/wallet/types.rs:417`).
+- Failed dispatch and the cancel-safety rule: `nostr_cancel_slate()` (`goblin/src/wallet/wallet.rs:4081`), `cancel_safe()` (`goblin/src/wallet/types.rs:417`).
 - Session guards: `goblin/src/nostr/session/classify.rs:158` (`is_wallet_protocol_payload()`), `:251` (`http_auth_target()`); `goblin/src/nostr/session/mod.rs:339` (`decide_crypto()`); `goblin/src/nostr/authuri.rs:223`, `:323` (site domain, callback binding).
 - Android capture, clipboard and overlay guards: `goblin/android/app/src/main/java/mw/gri/android/MainActivity.java:387-413` (touch filter), `:552-610` (secret copy and clear), `:826` (`FLAG_SECURE`).
 - Replay protection: `goblin/src/nostr/store.rs` and the server's NIP-98 handling.
