@@ -12,6 +12,7 @@
 
 ```sh
 cd goblin
+git submodule update --init --recursive   # the wallet, and the node nested in it
 cargo build              # debug
 cargo build --release    # stripped release binary (see [profile.release])
 ./scripts/desktop.sh     # convenience wrapper

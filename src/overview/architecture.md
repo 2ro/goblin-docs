@@ -17,7 +17,7 @@
 │  embedded arti -> a Tor exit -> each relay's clearnet host│
 │  relay sockets + HTTP, for a wallet with Tor on          │
 ├─────────────────────────────────────────────────────────┤
-│  GRIM wallet + node engine   (wallet/, node/)            │
+│  GRIM wallet + node engine   (wallet/, wallet/grin/)     │
 │  seed · keys · sync · Mimblewimble slatepack tx machine  │
 └─────────────────────────────────────────────────────────┘
         │                                   │
@@ -56,7 +56,7 @@ A deliberate split (see [the transport page](../pillars/tor.md#what-goes-over-to
 | Nostr | `goblin/src/nostr/` | `mod.rs`, `client.rs` |
 | Tor | `goblin/src/tor/` | the arti engine, copied from GRIM |
 | Wallet↔Nostr glue | `goblin/src/wallet/wallet.rs` | `WalletTask::Nostr*` |
-| GRIM core | `goblin/wallet/`, `goblin/node/` | inherited from GRIM |
+| GRIM core | `goblin/wallet/` (the node nested at `goblin/wallet/grin/`) | inherited from GRIM |
 | Identity server | `goblin-nip05d/` (sibling crate) | the NIP-05 authority |
 
 ## A payment in one breath
@@ -65,5 +65,5 @@ You tap Pay → GRIM builds a slatepack → the Nostr layer gift-wraps it and pu
 
 ## References
 
-- Layer directories: `goblin/src/{gui/views/goblin,nostr,tor}/`, `goblin/wallet/`, `goblin/node/`.
+- Layer directories: `goblin/src/{gui/views/goblin,nostr,tor}/`, `goblin/wallet/` (with the node at `goblin/wallet/grin/` since Build 172).
 - Transport split rationale: `goblin/README.md`; see also [Tor in Goblin](../pillars/tor.md).

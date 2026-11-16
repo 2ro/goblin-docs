@@ -8,7 +8,7 @@ Goblin has to hide a phone's IP from the relays it talks to, and it has to do th
 
 Rather than write our own Tor engine, Goblin **copies GRIM's**. GRIM's `src/tor/` is a small, four-file engine already running in production on desktop and Android, so Goblin inherits a known-good implementation instead of paying for one twice. Two technical choices come along verbatim because GRIM already settled them:
 
-- **arti 0.43** across the whole arti family (`arti-client`, `tor-rtcompat`, and the onion/crypto crates).
+- **arti 0.44** across the whole arti family (`arti-client`, `tor-rtcompat`, and the onion/crypto crates), the version GRIM v0.3.6's wallet library uses (0.43 before Build 172).
 - **The native-tls Tor runtime** (`TokioNativeTlsRuntime`), *not* rustls. This deliberately sidesteps the rustls crypto-provider (ring / aws-lc-rs) conflict. We take GRIM's TLS path, which already settled it, and never re-open that wound.
 
 ## How it works
@@ -30,6 +30,8 @@ The client is warmed up at app launch, whatever the wallets' settings, so it is 
 
 **Android is solved**: GRIM already ships embedded Tor there and the recipe copies over. It comes down to two things: **arti compiles into the app's native library** (the same `.so` the rest of the Rust already lives in, no separate process), and a few environment variables are set **before the Rust runtime starts**. The critical one is `ARTI_FS_DISABLE_PERMISSION_CHECKS=true` (GRIM sets it in `MainActivity.java` before loading native code): arti's `fs-mistrust` layer normally refuses to start if its state directory has "too-open" Unix permissions, and Android's app sandbox always trips that check, so without this flag Tor simply never boots on a phone. It's a known one-line fix, not a research problem.
 
+**The state directory on desktop.** Since Build 172 (arti 0.44) the same `fs-mistrust` check also refuses a desktop state directory that other users can read, and earlier builds created it with the process umask, usually `0755`. So before it builds the client, Goblin makes the directory owner-only (`0700`) on Linux and macOS; a failure is logged and the bootstrap goes on. Without this a Tor-on desktop wallet would reach no relay after the update, because a Tor route never falls back to clearnet. Windows is not affected.
+
 **iOS** should work (nothing about arti is Android-specific), but it is treated as unproven until we ship it, so it gets its own spike. Two things going in: iOS runs **plain Tor without pluggable-transport bridges** (the platform won't let an app spawn the helper processes those need, which is fine for reaching the relay), and the same `fs-mistrust` / state-directory questions get answered against iOS's sandbox.
 
 ## Reference
@@ -38,7 +40,8 @@ In `goblin/src/tor/` (copied from GRIM's `grim/src/tor/`, four files: `config.rs
 
 - `warm_up()`: idempotent background start; the bootstrap/dial/readiness/watch loop on a dedicated runtime (`goblin/src/tor/engine.rs:107`). Called once at app launch (`goblin/src/lib.rs:124`) and again by any Tor-route request that finds the client down (`wait_ready()`, `engine.rs:177`).
 - `is_ready()` / `transport_ready()`: the readiness surface the Nostr client and the UI use; `transport_ready()` is relay-gated on the current circuit generation.
-- arti wiring: `TorClient` on the `TokioNativeTlsRuntime`, arti 0.43.
+- arti wiring: `TorClient` on the `TokioNativeTlsRuntime`, arti 0.44 (`goblin/Cargo.toml:158-159`).
+- Owner-only state directory before the client is built: `bootstrap_once()`, `goblin/src/tor/engine.rs:224-235`.
 - Android bring-up: native-lib link + `ARTI_FS_DISABLE_PERMISSION_CHECKS=true` set in `MainActivity.java` before native code loads.
 
 ## References
