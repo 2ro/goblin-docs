@@ -1,10 +1,10 @@
 # Tor and your relay (the onion service is retired)
 
-> **Summary.** Goblin wallets reach relays over [Tor](../pillars/tor.md) automatically: the client dials a Tor-exit circuit to your relay's ordinary clearnet host. There is nothing for a relay operator to run for Tor support today. **This used to not be true**: builds through 133 needed operators to front their relay with a system-Tor onion service, which this page originally documented. Build 134 dropped the pinned onion (it flapped under load) in favor of the plain Tor-exit path, so that setup is retired.
+> **Summary.** A Goblin wallet with [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) on reaches relays over [Tor](../pillars/tor.md) automatically: the client dials a Tor-exit circuit to your relay's ordinary clearnet host. There is nothing for a relay operator to run for Tor support today. **This used to not be true**: builds through 133 needed operators to front their relay with a system-Tor onion service, which this page originally documented. Build 134 dropped the pinned onion (it flapped under load) in favor of the plain Tor-exit path, so that setup is retired.
 
 ## What this means for operators today
 
-Nothing to install. Wallets reach your relay the same way they'd reach it over any other Tor-exit connection: your relay's normal `wss://` endpoint. The one thing to check is that your relay (and anything in front of it, a CDN or WAF) doesn't **block Tor exit-node traffic**; `relay.damus.io` and `nos.lol` do, which is why Goblin's default pool no longer includes them. See [Run a relay](relay.md) for the rest of what running a relay involves.
+Nothing to install. Wallets with Tor on reach your relay the same way they'd reach it over any other Tor-exit connection: your relay's normal `wss://` endpoint. The one thing to check is that your relay (and anything in front of it, a CDN or WAF) doesn't **block Tor exit-node traffic**; `relay.damus.io` and `nos.lol` do, which is why Goblin's default pool no longer includes them. See [Run a relay](relay.md) for the rest of what running a relay involves.
 
 ## Historical: the retired onion service
 

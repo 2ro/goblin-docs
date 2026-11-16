@@ -8,7 +8,7 @@ When the wallet has cached a news post, Home renders a card with the article's *
 
 The panel is **latest-only** and **language-aware**. It shows exactly one article: the most recent one from the news key **in the wallet's own language**, falling back to the newest English article when nothing is published in that language. An edit republished under the same identifier replaces it in place rather than stacking a second card.
 
-The card is fetched from the wallet's own relay set (which includes the money-path relay `relay.floonet.dev`) on the same subscription machinery as everything else, so it arrives over [Tor](../pillars/tor.md) like the rest of the wallet's traffic. The wallet guards both the **kind** (30023) and the **author** (the news key), so a stray event on the news subscription cannot spoof the panel.
+The card is fetched from the wallet's own relay set (which includes the money-path relay `relay.floonet.dev`) on the same subscription machinery as everything else, so it follows the wallet's [Tor](../pillars/tor.md) setting like the rest of the wallet's traffic. The wallet guards both the **kind** (30023) and the **author** (the news key), so a stray event on the news subscription cannot spoof the panel.
 
 ## How it works
 

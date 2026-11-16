@@ -22,6 +22,6 @@ Defaults are conveniences, not gatekeepers. Running your own pieces gives you:
 ## Pointing a wallet at your infra
 
 - **Name authority**: Settings → Identity → Name authority → set your domain. Bare names then resolve against it.
-- **Relays**: Settings → Nostr Relays → add your `wss://…` and save & reconnect. There's nothing to configure for Tor: every wallet dials your relay over a Tor exit automatically, so the only requirement on your side is not blocking Tor exit-node traffic (see [Tor and your relay](tor-relay.md)).
+- **Relays**: Settings → Nostr Relays → add your `wss://…` and save & reconnect. There's nothing to configure for Tor: a wallet with Tor routing on dials your relay over a Tor exit automatically, so the only requirement on your side is not blocking Tor exit-node traffic (see [Tor and your relay](tor-relay.md)).
 
 > These docs keep deployment generic. Adapt paths, domains, and certificates to your own host; don't copy another operator's production specifics.

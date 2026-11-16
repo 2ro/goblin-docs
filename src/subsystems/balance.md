@@ -28,7 +28,7 @@ A genuine zero balance is only ever shown when the wallet is confident the balan
 
 ### The fiat rate is view-triggered, not polled
 
-Under the balance you can show its value in a world currency, in Bitcoin, or in sats (or turn the preview off entirely). The rate is fetched **when the view needs it**, cached for a short freshness window, and reused within that window so a quick glance doesn't refetch. It is **not** polled in the background: Goblin does not sit and fetch prices on a timer. If a fetch fails, the wallet shows **rate unavailable** rather than a guessed or indefinitely stale number. Like every other HTTP request, the rate fetch rides [Tor](../pillars/tor.md) when Tor routing is on, and goes direct otherwise.
+Under the balance you can show its value in a world currency, in Bitcoin, or in sats (or turn the preview off entirely). The rate is fetched **when the view needs it**, cached for a short freshness window, and reused within that window so a quick glance doesn't refetch. It is **not** polled in the background: Goblin does not sit and fetch prices on a timer. If a fetch fails, the wallet shows **rate unavailable** rather than a guessed or indefinitely stale number. The rate fetch belongs to no single wallet, so it follows the [app-level rule](../pillars/tor.md#tor-routing-is-a-per-wallet-setting): over [Tor](../pillars/tor.md), unless at least one wallet is open and every open wallet has Tor off.
 
 ## References
 

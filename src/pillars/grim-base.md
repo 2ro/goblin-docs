@@ -17,7 +17,7 @@ GRIM bundles the Grin node and wallet libraries as path dependencies and drives 
 
 What Goblin **adds** lives in two new trees that GRIM doesn't have (`src/nostr/` and `src/gui/views/goblin/`), plus a `src/tor/` transport **copied from GRIM's own proven Tor engine** and pointed at the relay, and a handful of hooks into the wallet lifecycle (`src/wallet/wallet.rs`) to start/stop the Nostr service and dispatch `WalletTask::Nostr*` jobs.
 
-What Goblin **changes** in upstream is intentionally minimal: it swaps the default presented surface to the Goblin UI, routes all of its Nostr and HTTP traffic through that embedded Tor transport, and rebrands. The original GRIM tree is kept side-by-side (at `../grim`) precisely so the fork can be diffed and stay close to upstream.
+What Goblin **changes** in upstream is intentionally minimal: it swaps the default presented surface to the Goblin UI, routes its Nostr and HTTP traffic through that embedded Tor transport for any wallet that turns Tor on, and rebrands. The original GRIM tree is kept side-by-side (at `../grim`) precisely so the fork can be diffed and stay close to upstream.
 
 ## Reference
 

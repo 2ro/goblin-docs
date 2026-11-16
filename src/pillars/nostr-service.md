@@ -1,6 +1,6 @@
 # The NostrService relay thread
 
-> **Summary.** `NostrService` is the long-running, per-wallet engine that connects to relays (over [Tor](tor.md)), publishes payment messages, watches for incoming ones, and exposes send progress to the UI. Each open wallet has its own service and its own relay pool; there is no global connection.
+> **Summary.** `NostrService` is the long-running, per-wallet engine that connects to relays (over [Tor](tor.md) when the wallet's Tor routing is on, directly otherwise), publishes payment messages, watches for incoming ones, and exposes send progress to the UI. Each open wallet has its own service and its own relay pool; there is no global connection.
 
 ## Motivation
 

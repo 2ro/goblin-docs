@@ -12,7 +12,8 @@ The first time you open Goblin:
 2. Pick a **wallet name** and a **password**.
 3. Goblin shows your **recovery phrase**: a list of words. Write them down on paper and keep them somewhere safe. **These words are your money.** If you lose them, nobody can get your funds back for you.
 4. Re-enter the words to confirm you saved them.
-5. Your wallet already has an address, a long key called an **npub**. Optionally pick a **username** like `yourname`, a friendly alias that points to your npub, so friends can pay you without copying the key. Or tap **Skip** to stay anonymous.
+5. Choose your **network privacy**. A large switch turns **Tor** on, which hides your IP from relays. It starts off: flip it on, or leave it off and continue. You can change it later.
+6. Your wallet already has an address, a long key called an **npub**. Optionally pick a **username** like `yourname`, a friendly alias that points to your npub, so friends can pay you without copying the key. Or tap **Skip** to stay anonymous.
 
 That's it. You're ready.
 
@@ -52,7 +53,7 @@ Tap **Activity** to see everything you've sent and received, and whether each on
 
 - **Your recovery phrase is your money.** Back it up on paper. Goblin can't reset it for you, and support can't either.
 - **Payments are private by default.** They travel encrypted, and the network hides who paid whom. [Here's how](overview/architecture.md).
-- **Private by choice.** Goblin can route its payment network over **Tor**, running right inside the app, so the relay never sees your IP. It's a per-wallet switch under **Settings → Privacy → Tor routing**: a wallet you updated from an older version keeps Tor on, and a brand-new wallet asks you during setup (off means faster to connect but the relay can see your IP, so pair it with a VPN if that matters to you). With Tor on the money path still connects in a couple of seconds; the very first connection can take a moment while Tor warms up, which is normal.
+- **Private by choice.** Goblin can route its payment network over **Tor**, running right inside the app, so the relay never sees your IP. It's a per-wallet switch under **Settings → Privacy → Tor routing**, and it is off unless you turn it on: a brand-new wallet asks you during setup, a wallet you add later from the wallet list starts with Tor off, and an older wallet that never recorded a choice keeps Tor on. Off means faster to connect, but the relay can see your IP, so pair it with a VPN if that matters to you. With Tor on the money path still connects in a couple of seconds; the very first connection can take a moment while Tor warms up, which is normal.
 - **Paying someone who isn't on Goblin?** Use **Settings → Wallet → Slatepacks** for the by-hand method.
 - **On Android, the back button won't dump you out of the app by accident.** On the wallet home screen, press back twice to return to the wallet switcher; the first press shows a "Press back again to switch wallets" hint. The confirmation to exit the app lives at the wallet switcher.
 

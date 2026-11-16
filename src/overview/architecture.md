@@ -1,6 +1,6 @@
 # Architecture: the three pillars
 
-> **Summary.** Goblin is layered. A [GRIM](../pillars/grim-base.md) wallet/node core handles money; a [Nostr](../pillars/nostr.md) layer handles messaging and identity; a [Tor](../pillars/tor.md) layer handles transport. The UI ties them into a Cash-App-style experience. Each layer is replaceable in principle and isolated in the code.
+> **Summary.** Goblin is layered. A [GRIM](../pillars/grim-base.md) wallet/node core handles money; a [Nostr](../pillars/nostr.md) layer handles messaging and identity; a [Tor](../pillars/tor.md) layer handles transport for any wallet that turns Tor on. The UI ties them into a Cash-App-style experience. Each layer is replaceable in principle and isolated in the code.
 
 ## The stack, top to bottom
 
@@ -15,13 +15,13 @@
 ├─────────────────────────────────────────────────────────┤
 │  Tor transport   (src/tor/)                              │
 │  embedded arti -> a Tor exit -> each relay's clearnet host│
-│  ALL relay sockets + HTTP go through here                │
+│  relay sockets + HTTP, for a wallet with Tor on          │
 ├─────────────────────────────────────────────────────────┤
 │  GRIM wallet + node engine   (wallet/, node/)            │
 │  seed · keys · sync · Mimblewimble slatepack tx machine  │
 └─────────────────────────────────────────────────────────┘
         │                                   │
-        Tor                          Grin node (direct,
+   Tor or direct                     Grin node (direct,
  (identity + payments               public chain data,
   + price + avatars)                 not tied to identity)
 ```
@@ -38,7 +38,7 @@ That division of labor is the whole design: **Tor hides your network location fr
 
 ## What rides which transport
 
-A deliberate split (see [the transport page](../pillars/tor.md#what-goes-over-tor-and-what-doesnt)). The **Tor** rows below apply when [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) is on (the default for updated wallets, and a per-wallet choice for new ones); with it off those same rows go **direct**, still end-to-end encrypted but exposing your IP to the relay. The Grin node row is always direct.
+A deliberate split (see [the transport page](../pillars/tor.md#what-goes-over-tor-and-what-doesnt)). The **Tor** rows below apply when [Tor routing](../pillars/tor.md#tor-routing-is-a-per-wallet-setting) is on (off unless you turn it on: a new wallet starts with it off, and only a wallet with no recorded choice, an older one, keeps it on); with it off those same rows go **direct**, still end-to-end encrypted but exposing your IP to the relay. The Grin node row is always direct.
 
 | Traffic | Path | Why |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ A deliberate split (see [the transport page](../pillars/tor.md#what-goes-over-to
 
 ## A payment in one breath
 
-You tap Pay → GRIM builds a slatepack → the Nostr layer gift-wraps it and publishes it to relays → the bytes leave your machine over a Tor exit, to the relay's clearnet host → the recipient's wallet ingests it, auto-builds its half, and replies the same way → your wallet finalizes and GRIM broadcasts to the Grin node. The [payment-flow page](../features/payment-flow.md) walks every step.
+You tap Pay → GRIM builds a slatepack → the Nostr layer gift-wraps it and publishes it to relays → the bytes leave your machine over a Tor exit to the relay's clearnet host (or go straight to the relay with Tor off) → the recipient's wallet ingests it, auto-builds its half, and replies the same way → your wallet finalizes and GRIM broadcasts to the Grin node. The [payment-flow page](../features/payment-flow.md) walks every step.
 
 ## References
 

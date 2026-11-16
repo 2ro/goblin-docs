@@ -1,6 +1,6 @@
 # Relay traffic over Tor
 
-> **Summary.** Goblin gives the Nostr relay pool a custom websocket transport backed by its [embedded Tor client](tor-client.md). Every relay is dialed the same way: a Tor-exit circuit to its clearnet host, running the usual hostname-validated TLS + websocket handshake over the Tor-carried byte stream. Nothing above the byte transport can tell one relay's connection from another's.
+> **Summary.** For a wallet with [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) on, Goblin gives the Nostr relay pool a custom websocket transport backed by its [embedded Tor client](tor-client.md). Every relay is dialed the same way: a Tor-exit circuit to its clearnet host, running the usual hostname-validated TLS + websocket handshake over the Tor-carried byte stream. Nothing above the byte transport can tell one relay's connection from another's.
 
 ## Motivation
 
@@ -22,6 +22,7 @@ In `goblin/src/tor/transport.rs` (the arti-backed transport, copied from GRIM):
 - The transport type implements `nostr_relay_pool::transport::websocket::WebSocketTransport`.
 - `connect()`: hands the relay's hostname to arti for a Tor-exit circuit, then feeds `tokio_tungstenite::client_async_tls(url, stream)`, the TLS + websocket wrap is unchanged from the earlier onion-preferring version.
 - The socket-split and frame-adapter helpers.
+- With Tor off the service builds the relay client with `ClearnetWebSocketTransport` instead, a direct websocket (`transport.rs:128`; chosen in `goblin/src/nostr/client/service.rs:213-217`).
 
 ## References
 

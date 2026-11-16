@@ -22,7 +22,7 @@ Nostr has no central server: reachability depends on sender and receiver sharing
 
 ### The candidate pool
 
-The pool is a maintained list of vetted public relays, fetched from the project's published pool file **over Tor**, cached on disk, and refreshed when the cache is older than 7 days. A pinned copy is compiled into the app for first run and offline: a core subset of the published pool in the same schema (`relay.floonet.dev` and `relay.nostr.net` with the `dm` and `discovery` roles, `offchain.pub` with `dm`).
+The pool is a maintained list of vetted public relays, fetched from the project's published pool file (over Tor when the wallet's Tor routing is on), cached on disk, and refreshed when the cache is older than 7 days. A pinned copy is compiled into the app for first run and offline: a core subset of the published pool in the same schema (`relay.floonet.dev` and `relay.nostr.net` with the `dm` and `discovery` roles, `offchain.pub` with `dm`).
 
 Each entry carries:
 
@@ -33,7 +33,7 @@ Some entries are **clearnet-only**: relays that refuse connections from Tor exit
 
 An earlier pool schema also carried a per-relay `onion` field for a pinned onion service; build134 dropped it along with the onion-dialing path (see [The relay's Tor exit path](tor-exit.md)), so current pool entries carry neither an `onion` nor a co-located exit field.
 
-A pool relay is only ever used after passing a **NIP-11 gate**, checked lazily right before use (results cached for 24 hours): it must accept messages of at least 128 KiB (a worst-case payment wrap is ~66 KB on the wire), must not require payment, AUTH, or restricted writes, and must tolerate [NIP-59](https://nips.nostr.com/59)'s up-to-2-day backdated timestamps. The NIP-11 fetch itself runs over Tor.
+A pool relay is only ever used after passing a **NIP-11 gate**, checked lazily right before use (results cached for 24 hours): it must accept messages of at least 128 KiB (a worst-case payment wrap is ~66 KB on the wire), must not require payment, AUTH, or restricted writes, and must tolerate [NIP-59](https://nips.nostr.com/59)'s up-to-2-day backdated timestamps. The NIP-11 fetch follows the wallet's Tor setting too.
 
 The fetched pool file is validated locally (schema version, entry caps) and can only *raise* the message-size floor, never lower it; and since every relay is still individually gated by your own wallet's probe, a broken or hostile pool file degrades to the pinned defaults rather than being trusted.
 

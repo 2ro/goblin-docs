@@ -9,7 +9,7 @@ A relay only needs to do one thing for Goblin: accept and serve the gift-wrapped
 ## How it works
 
 - **strfry, unmodified**, plus a **write-policy plugin** that only admits the kinds Goblin uses: profiles (`kind 0`), contact/relay lists, gift wraps (`kind 1059`), and the relay-list kinds (`10002` / `10050`). Everything else is rejected, so the relay won't fill with unrelated content.
-- Clients reach it over `wss://`, **over [Tor](../pillars/tor-relay-transport.md)**: every wallet connection arrives from a shared Tor exit IP, which is why abuse controls are per-connection rather than naive per-IP.
+- Clients reach it over `wss://`, many of them **over [Tor](../pillars/tor-relay-transport.md)**: a connection from a wallet with Tor on arrives from a shared Tor exit IP, which is why abuse controls are per-connection rather than naive per-IP.
 - It's typically fronted by the same TLS reverse proxy as the [name authority](name-authority.md), with the websocket location proxied to strfry's loopback port.
 - **Payment retention.** The point of a payment relay is to hold a gift-wrap until its recipient comes online, so don't set an aggressive expiry or eviction policy that could drop an unfetched payment. The project's `relay.floonet.dev` **guarantees** payment-message retention (it cannot prematurely delete a payment), which is why it ships as the default relay in every wallet; run yours the same way.
 - **Optional NIP-42 auth.** Goblin wallets do [opportunistic NIP-42 auth](../pillars/nostr-relays.md#relay-authentication-nip-42) automatically, so a relay *may* enable it and wallets will answer. Do not make it *mandatory* or paid, though: the wallet's pool gate refuses any relay that requires payment or AUTH.

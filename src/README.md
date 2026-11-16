@@ -4,7 +4,7 @@
 
 **Goblin is a private, mobile-first payments app for [Grin](https://grin.mw). Think Cash App, but the money is Grin, your address is a Nostr key (an npub), and the whole conversation can ride Tor.**
 
-You type `alice` instead of pasting a 90-character key: a username is an optional, friendly alias that the wallet resolves to the real address (the npub) behind the scenes. You tap *Pay/Request*, hold to confirm, and a Grin payment travels end-to-end encrypted over the [Nostr](https://github.com/nostr-protocol/nostr) network, so no relay, no network observer, and no chain analyst can tie the sender to the receiver. Turn on [Tor routing](pillars/tor.md#tor-routing-is-a-per-wallet-setting) (on by default for wallets that update; a per-wallet choice for new ones) and your IP is hidden from the relay too.
+You type `alice` instead of pasting a 90-character key: a username is an optional, friendly alias that the wallet resolves to the real address (the npub) behind the scenes. You tap *Pay/Request*, hold to confirm, and a Grin payment travels end-to-end encrypted over the [Nostr](https://github.com/nostr-protocol/nostr) network, so no relay, no network observer, and no chain analyst can tie the sender to the receiver. Turn on [Tor routing](pillars/tor.md#tor-routing-is-a-per-wallet-setting) and your IP is hidden from the relay too. Tor is your choice, per wallet: a new wallet starts with it off and offers a large Tor switch during setup, and an older wallet that never recorded a choice keeps it on.
 
 ![Goblin home: balance, recent contacts, and an activity feed, connected over Tor (optional)](assets/goblin-home.png)
 

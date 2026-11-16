@@ -1,6 +1,6 @@
 # Name resolution under Tor
 
-> **Summary.** The wallet runs no DNS resolver of its own. Every hostname Goblin needs, relay or otherwise, is handed to Tor **by name**, and Tor's exit relay performs the DNS lookup and opens the connection. The device never emits a DNS query and never sees the resolved IP.
+> **Summary.** The wallet runs no DNS resolver of its own. With [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) on, every hostname a wallet needs, relay or otherwise, is handed to Tor **by name**, and Tor's exit relay performs the DNS lookup and opens the connection. The device never emits a DNS query and never sees the resolved IP. With Tor off, that wallet's requests use the device's normal DNS lookup.
 
 ## How it works
 
