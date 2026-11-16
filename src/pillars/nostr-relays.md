@@ -51,7 +51,7 @@ The wallet does **opportunistic [NIP-42](https://nips.nostr.com/42) relay auth a
 - `goblin/src/nostr/relays.rs`: `DEFAULT_RELAYS` and `TOR_RELAYS` (`relays.rs:35`, `:46`), `MAX_DM_RELAYS = 3`, `normalize_relay_url()`; default name authority constants (`HOME_NIP05_DOMAIN`, `DEFAULT_NIP05_SERVER`).
 - Advertised-set selection and the discovery fan-out: `ensure_advertised_set()` and `publish_identity()` in `goblin/src/nostr/client.rs`.
 - Editor + "Save & reconnect": the relays page in `goblin/src/gui/views/goblin/mod.rs` (`SettingsPage::Relays`, `relay_summary()`); the row that opens it is the **Nostr Relays** entry in the Identity card.
-- Relay transport: every socket runs over [Tor](tor-relay-transport.md).
+- Relay transport: with Tor routing on, every socket runs over [Tor](tor-relay-transport.md); with it off, over a direct websocket.
 
 ## References
 
