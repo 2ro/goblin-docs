@@ -12,6 +12,7 @@ When a wallet opens with Nostr enabled, it spawns a `NostrService` on a dedicate
 
 - **Holds the decrypted keys** in memory only (never re-serialized to disk) and builds a `nostr-sdk` client whose relay transport is the [Tor websocket transport](tor-relay-transport.md) when [Tor routing](tor.md#tor-routing-is-a-per-wallet-setting) is on, so every relay socket runs over Tor; in clearnet mode the same client dials the relays directly.
 - **Subscribes** for `kind 1059` gift wraps addressed to your key, with a **3-day lookback** (NIP-59 randomizes timestamps up to ~2 days into the past, so the window must be generous). Incoming events flow into the [ingest policy](nostr-ingest.md). A message that crashed the app inside the slatepack parser is retried once at the next start and then skipped, so the lookback cannot replay it into a crash at every launch (see [Before the parser](nostr-ingest.md#before-the-parser)).
+- **Leaves a message for the next open when its wallet closes.** Since Build 172 a payment message that arrives while the wallet is closing, or a moment after, is not handled by the old run. The service checks before it handles each event, and the handler checks again where a closed wallet would give a wrong answer: before a decline or cancel is applied, after a failed parse, and after the transaction lookup. Such a run records nothing, so the relay still holds the message and the next open's catch-up handles it. Before, the old run could mark the message handled and it was lost.
 - **Runs the send pipeline**: build rumor → seal → gift wrap → publish to *your* relays and the recipient's DM relays. Progress is published to the UI through an atomic `send_phase` (`IDLE → WORKING → SENT / FAILED`, plus `REQUEST_BLOCKED`), with a human-readable reason on failure.
 - **Rate-limits incoming senders** to blunt spam: a known **contact** may send ~30 events/hour, an **unknown** key ~10/hour.
 - **Re-verifies names** on a rolling basis (a few contacts per tick, on a periodic heartbeat) so a contact whose `name` was reassigned or released is caught.
@@ -29,6 +30,7 @@ In `goblin/src/nostr/client.rs`:
 - `send_phase` constants: `IDLE=0`, `WORKING=1`, `SENT=2`, `FAILED=3`, `REQUEST_BLOCKED=4`.
 - One-shots: `public_key()`, `nprofile()`, `nsec()`, `keys()`, `fetch_profile_blocking()`.
 - Lifecycle hooks: `Wallet::open` / `close` / `start_sync` in `goblin/src/wallet/wallet.rs`; jobs arrive as `WalletTask::Nostr*`.
+- Close race: the event loop stops before it handles an event for a closed wallet (`goblin/src/nostr/client/service.rs:442`, `:453`) and leaves a panicked event unmarked after close (`:493`). `run_lost()` and `wallet_gone()` (`:1820`, `:1825`) are asked at the top of `handle_wrap()` (`:1911`), before a void (`:2025`), after a failed parse inside `parse_between_markers()` (`:1871`, called at `:2074`) and after the transaction lookup (`:2111`).
 - Relay transport: the arti-backed [Tor websocket transport](tor-relay-transport.md) (`goblin/src/tor/`).
 
 ## References
